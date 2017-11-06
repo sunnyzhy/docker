@@ -49,7 +49,7 @@
 # docker rmi <image name>|<image id>
 ```
 
-# 进入镜像系统
+# 进入docker容器
 ``` javascript
 # docker exec -it <container id> /bin/sh
 
@@ -72,7 +72,11 @@ boot  etc  lib	 media	opt  root  sbin  sys  usr
 
 # 设置docker时间与宿主机时间同步
 ``` javascript
-# cp /usr/share/zoneinfo/Asia/Shanghai <container id>:/etc/localtime
+# docker exec -it <container id> /bin/sh
+# cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
+``` javascript
+# docker cp /usr/share/zoneinfo/Asia/Shanghai <container id>:/etc/localtime
 ```
 ``` bash
 Dockerfile
