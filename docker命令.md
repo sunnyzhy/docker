@@ -71,16 +71,16 @@ boot  etc  lib	 media	opt  root  sbin  sys  usr
 ```
 
 # 设置docker时间与宿主机时间同步
-### 在docker容器里修改时区
+### 方法1 在docker容器里修改时区
 ``` javascript
 # docker exec -it <container id> /bin/sh
 # cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
-### 从主机拷贝时区文件到容器
+### 方法2 从主机拷贝时区文件到容器
 ``` javascript
 # docker cp /usr/share/zoneinfo/Asia/Shanghai <container id>:/etc/localtime
 ```
-### 修改Dockerfile
+### 方法3 修改Dockerfile
 ``` bash
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
