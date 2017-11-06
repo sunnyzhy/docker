@@ -69,3 +69,12 @@ boot  etc  lib	 media	opt  root  sbin  sys  usr
 ``` javascript
 # docker cp <container id>:<src> <dest>
 ```
+
+# 设置docker时间与宿主机时间同步
+``` javascript
+# cp /usr/share/zoneinfo/Asia/Shanghai <container id>:/etc/localtime
+```
+``` bash
+Dockerfile
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
