@@ -84,3 +84,15 @@ boot  etc  lib	 media	opt  root  sbin  sys  usr
 ``` bash
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
+
+# 设置jdk读取时间文件
+### 方法1 在docker容器里修改时区
+``` javascript
+# docker exec -it <container id> /bin/sh
+# echo "Asia/shanghai" > /etc/timezone
+```
+
+### 方法2 修改Dockerfile
+``` bash
+RUN echo "Asia/shanghai" > /etc/timezone
+```
