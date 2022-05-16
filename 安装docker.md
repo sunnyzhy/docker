@@ -1,17 +1,22 @@
-# 安装docker
-``` javascript
+# 安装 docker
+
+## 安装 docker
+
+``` bash
 # yum install -y docker
 ```
 
-# 启动 & 停止docker
-``` javascript
+## 启动 & 停止 docker
+
+``` bash
 # systemctl start docker
 
 # systemctl stop docker
 ```
 
-# 验证docker是否安装成功
-``` javascript
+## 验证 docker 是否安装成功
+
+``` bash
 # docker -v
 Docker version 1.12.6, build 85d7426/1.12.6
 
@@ -43,23 +48,27 @@ For more examples and ideas, visit:
  https://docs.docker.com/engine/userguide/
 ```
 
-# 查看本地的容器
-``` javascript
+## 查看本地的容器
+
+``` bash
 # docker ps -a
 CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                     PORTS               NAMES
 e3c5b66e8fa6        hello-world          "/hello"                 18 hours ago        Exited (0) 18 hours ago                        big_leakey
 ```
 
-# 查看本地的镜像
-``` javascript
+## 查看本地的镜像
+
+``` bash
 # docker images
 REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
 docker.io/hello-world   latest              05a3bd381fc2        6 weeks ago         1.84 kB
 ```
 
-# 配置阿里云镜像
-需要先注册阿里云的开发者账号https://dev.aliyun.com/search.html，然后记下加速器地址。
-``` javascript
+## 配置阿里云镜像
+
+需要先注册阿里云的开发者账号 ```https://dev.aliyun.com/search.html```，然后记下加速器地址。
+
+``` bash
 # vim /etc/docker/daemon.json
 {
   "registry-mirrors": ["https://6848w7y3.mirror.aliyuncs.com"]
