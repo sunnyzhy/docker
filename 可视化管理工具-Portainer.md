@@ -57,7 +57,7 @@ ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 # docker run -d -p 9000:9000 --name portainer --restart always -v portainer_data:/data portainer/portainer-ce -H tcp://<REMOTE_HOST>:<REMOTE_PORT>
 ```
 
-***此处的 <REMOTE_PORT> 就是在 docker.service 文件里配置的 2375***
+***此处的 <REMOTE_PORT> 就是在上述 docker.service 文件里配置的 2375***
 
 用浏览器访问:
 
