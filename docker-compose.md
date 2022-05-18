@@ -116,17 +116,6 @@ services:
       - 80:80
     volumes:
       - /usr/local/www:/usr/share/nginx/html
-
-# docker-compose -f /usr/local/docker/dockerfile-compose.yml up -d
-
-# docker ps
-CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS                                   NAMES
-19a04e250bfe   zhy/nginx:latest   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:8018->80/tcp, :::8018->80/tcp   nginx
-
-# docker images
-REPOSITORY                                      TAG       IMAGE ID       CREATED        SIZE
-nginx                                           latest    605c77e624dd   4 months ago   141MB
-zhy/nginx                                       latest    910b61fb39f5   4 months ago   141MB
 ```
 
 参数说明:
