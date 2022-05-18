@@ -26,6 +26,8 @@ portainer/portainer-ee                 Portainer BE - a fully featured service d
 
 ### 基于本地容器
 
+启动 Portainer:
+
 ```bash
 # docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
 ```
@@ -38,9 +40,24 @@ https://$host:9443
 
 ### 基于远程容器
 
+修改将要被远程连接的客户机的 docker.service 文件，开通 docker 的远程管理:
+
+```bash
+# vim /lib/systemd/system/docker.service
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H tcp://0.0.0.0:2375
+
+# systemctl daemon-reload
+
+# systemctl restart docker
+```
+
+启动 Portainer:
+
 ```bash
 # docker run -d -p 9000:9000 --name portainer --restart always -v portainer_data:/data portainer/portainer-ce -H tcp://<REMOTE_HOST>:<REMOTE_PORT>
 ```
+
+***此处的 <REMOTE_PORT> 就是在 docker.service 文件里配置的 2375***
 
 用浏览器访问:
 
