@@ -18,6 +18,8 @@ portainer/portainer-ee                 Portainer BE - a fully featured service d
 
 ## 安装 Portainer
 
+新建一个卷 portainer_data 来存 Portainer 数据:
+
 ```bash
 # docker volume create portainer_data
 ```
