@@ -74,6 +74,12 @@ boot  etc  lib	 media	opt  root  sbin  sys  usr
 # exit
 ```
 
+## 查看日志
+
+``` bash
+# docker logs <container id/name>
+```
+
 ## 从主机拷贝文件或文件夹到容器
 
 ``` bash
