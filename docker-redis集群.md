@@ -257,3 +257,12 @@ ba0aef2f5880   redis:latest             "docker-entrypoint.s…"   28 seconds ag
     af5a985a56024894fe18e2a0ab6d3f1b74d825dd 192.168.0.16:6379@16379 slave aeac13e8c2135d0f61aede9a528ad7facf1e730f 0 1652933959000 2 connected
     a5c774037229a6c3aa1fb56e608ee7ad49cadae7 192.168.0.13:6379@16379 master - 0 1652933959000 3 connected 10923-16383
     ```
+4. 操作示例:
+    ```bash
+    # redis-cli -c    
+    127.0.0.1:6379> set x 10
+    -> Redirected to slot [16287] located at 192.168.0.13:6379
+    OK
+    192.168.0.13:6379> get x
+    "10"
+    ```
