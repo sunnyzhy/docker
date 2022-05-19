@@ -140,6 +140,32 @@ echo "      external: true" >> docker-compose.yml
 create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
+注，关于自定义 network 的使用方法:
+
+1. 使用 ```docker network create <network-name>``` 命令创建 network
+2. 使用声明的网络
+    ```yml
+    services:
+      service-name:
+        networks:
+          - network-name
+    ```
+    或
+    ```yml
+    services:
+     service-name:
+      networks:
+        network-name:
+          ipv4_address: 192.168.0.xx
+    ```
+3. 声明网络
+    ```yml
+    networks:
+        network-name:
+          external: true
+    ```
+4. 否则在使用 ```docker-compose up -d``` 时, 会报错 ```ERROR: Service "service-name" uses an undefined network "network-name"```
+
 ## 启动 docker-compose
 
 ```bash
