@@ -140,7 +140,7 @@ echo "      external: true" >> docker-compose.yml
 create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
-注，关于自定义 network 的使用方法:
+***注，关于自定义 network 的使用方法:***
 
 1. 使用 ```docker network create <network-name>``` 命令创建 network
 2. 使用声明的网络
