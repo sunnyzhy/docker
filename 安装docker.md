@@ -107,3 +107,155 @@ e3c5b66e8fa6        hello-world          "/hello"                 18 hours ago  
 REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
 docker.io/hello-world   latest              05a3bd381fc2        6 weeks ago         1.84 kB
 ```
+
+## 修改 docker-ce.repo 中的 docker 地址
+
+安装 docker 后，使用 yum 安装出现以下问题:
+
+```
+https://download.docker.com/linux/centos/7/x86_64/stable/repodata/repomd.xml: [Errno 14] curl#7 - "Failed to connect to 2600:9000:215a:e000:3:db06:4200:93a1: Network is unreachable"
+```
+
+解决方法: 修改 docker-ce.repo 中的 docker 地址，把 ```download.docker.com``` 修改为 ```mirrors.aliyun.com/docker-ce```
+
+```bash
+# cd /etc/yum.repos.d
+
+# cp docker-ce.repo docker-ce.repo.backup
+
+# sed -i 's+download.docker.com+mirrors.aliyun.com/docker-ce+' docker-ce.repo
+```
+
+### 官方的 docker-ce.repo
+
+```repo
+[docker-ce-stable]
+name=Docker CE Stable - $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-stable-debuginfo]
+name=Docker CE Stable - Debuginfo $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/debug-$basearch/stable
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-stable-source]
+name=Docker CE Stable - Sources
+baseurl=https://download.docker.com/linux/centos/$releasever/source/stable
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-test]
+name=Docker CE Test - $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/test
+enabled=1
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-test-debuginfo]
+name=Docker CE Test - Debuginfo $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/debug-$basearch/test
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-test-source]
+name=Docker CE Test - Sources
+baseurl=https://download.docker.com/linux/centos/$releasever/source/test
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-nightly]
+name=Docker CE Nightly - $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-nightly-debuginfo]
+name=Docker CE Nightly - Debuginfo $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/debug-$basearch/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+
+[docker-ce-nightly-source]
+name=Docker CE Nightly - Sources
+baseurl=https://download.docker.com/linux/centos/$releasever/source/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://download.docker.com/linux/centos/gpg
+```
+
+### 修改为阿里云镜像的 docker-ce.repo
+
+```repo
+[docker-ce-stable]
+name=Docker CE Stable - $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-stable-debuginfo]
+name=Docker CE Stable - Debuginfo $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/debug-$basearch/stable
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-stable-source]
+name=Docker CE Stable - Sources
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/source/stable
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-test]
+name=Docker CE Test - $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/test
+enabled=1
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-test-debuginfo]
+name=Docker CE Test - Debuginfo $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/debug-$basearch/test
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-test-source]
+name=Docker CE Test - Sources
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/source/test
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-nightly]
+name=Docker CE Nightly - $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-nightly-debuginfo]
+name=Docker CE Nightly - Debuginfo $basearch
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/debug-$basearch/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+
+[docker-ce-nightly-source]
+name=Docker CE Nightly - Sources
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/source/nightly
+enabled=0
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+```
