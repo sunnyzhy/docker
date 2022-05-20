@@ -1,20 +1,20 @@
-# docker-redis 集群
+# docker-redis 集群 (bridge)
 
 ## 前言
 
 - redis版本: ```redis:latest```
 
-- 网络配置: 名称为 redis ，子网掩码为 ```192.168.0.0/24```
+- 网络配置: 驱动类型为 bridge，名称为 redis ，子网掩码为 ```192.168.0.0/24```
 
 - 启动六个 redis
-    |容器名称|容器IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
-    |--|--|--|--|
-    |redis-1|192.168.0.11|6371|/usr/local/docker/redis/node-1|
-    |redis-2|192.168.0.12|6372|/usr/local/docker/redis/node-2|
-    |redis-3|192.168.0.13|6373|/usr/local/docker/redis/node-3|
-    |redis-4|192.168.0.14|6374|/usr/local/docker/redis/node-4|
-    |redis-5|192.168.0.15|6375|/usr/local/docker/redis/node-5|
-    |redis-6|192.168.0.16|6376|/usr/local/docker/redis/node-6|
+    |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
+    |--|--|--|--|--|--|
+    |redis-1|192.168.0.11|6379|192.168.204.107|6371|/usr/local/docker/redis/node-1|
+    |redis-2|192.168.0.12|6379|192.168.204.107|6372|/usr/local/docker/redis/node-2|
+    |redis-3|192.168.0.13|6379|192.168.204.107|6373|/usr/local/docker/redis/node-3|
+    |redis-4|192.168.0.14|6379|192.168.204.107|6374|/usr/local/docker/redis/node-4|
+    |redis-5|192.168.0.15|6379|192.168.204.107|6375|/usr/local/docker/redis/node-5|
+    |redis-6|192.168.0.16|6379|192.168.204.107|6376|/usr/local/docker/redis/node-6|
 
 ## 拉取 redis 镜像
 
