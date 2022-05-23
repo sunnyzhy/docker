@@ -59,6 +59,7 @@ create-redis-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 
 ```bash
 # vim /usr/local/docker/redis/create-docker-compose.sh
+> /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
 cd /usr/local/docker/redis
 echo "version: '3.9'" >> docker-compose.yml
@@ -83,6 +84,68 @@ done
 
 # ls /usr/local/docker/redis
 create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
+```
+
+完整的 docker-compose.yml:
+
+```yml
+version: '3.9'
+
+services:
+ redis-1:
+  image: redis:latest
+  container_name: redis-1
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-1/data:/data
+   - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+ redis-2:
+  image: redis:latest
+  container_name: redis-2
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-2/data:/data
+   - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+ redis-3:
+  image: redis:latest
+  container_name: redis-3
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-3/data:/data
+   - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+ redis-4:
+  image: redis:latest
+  container_name: redis-4
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-4/data:/data
+   - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+ redis-5:
+  image: redis:latest
+  container_name: redis-5
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-5/data:/data
+   - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+ redis-6:
+  image: redis:latest
+  container_name: redis-6
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-6/data:/data
+   - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
 ```
 
 ## 启动 docker-compose
