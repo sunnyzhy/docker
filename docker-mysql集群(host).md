@@ -104,6 +104,36 @@ services:
   network_mode: host
 ```
 
+***完整的docker-compose.yml:***
+
+```yml
+version: '3.9'
+
+services:
+ mysql-master:
+  image: mysql:latest
+  container_name: mysql-master
+  restart: always
+  volumes:
+   - /usr/local/docker/mysql/master/data:/var/lib/mysql
+   - /usr/local/docker/mysql/master/conf/my.cnf:/etc/mysql/my.cnf
+   - /usr/local/docker/mysql/master/mysql-files:/var/lib/mysql-files
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+  network_mode: host
+ mysql-slave:
+  image: mysql:latest
+  container_name: mysql-slave
+  restart: always
+  volumes:
+   - /usr/local/docker/mysql/slave/data:/var/lib/mysql
+   - /usr/local/docker/mysql/slave/conf/my.cnf:/etc/mysql/my.cnf
+   - /usr/local/docker/mysql/master/mysql-files:/var/lib/mysql-files
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+  network_mode: host
+```
+
 ## 启动 docker-compose
 
 ```bash
