@@ -86,7 +86,7 @@ done
 create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
-完整的 docker-compose.yml:
+***完整的 docker-compose.yml:***
 
 ```yml
 version: '3.9'
