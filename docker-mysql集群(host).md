@@ -15,7 +15,6 @@
 - mysql:8 镜像配置文件 my.cnf
     ```cnf
     [mysqld]
-    port=3307
     pid-file        = /var/run/mysqld/mysqld.pid
     socket          = /var/run/mysqld/mysqld.sock
     datadir         = /var/lib/mysql
