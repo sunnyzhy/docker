@@ -1,4 +1,4 @@
-# docker-mysql 集群 (host)
+# docker-mysql 主从 (host)
 
 ## 前言
 
