@@ -170,6 +170,8 @@ mysql> use mysql;
 
 mysql> stop slave;
 
+mysql> reset slave;
+
 mysql> change master to master_host='192.168.204.107',master_port=3306,master_user='slave',master_password='root',master_log_file='mysql-bin.000003',master_log_pos=873;
 
 mysql> start slave;
@@ -194,8 +196,8 @@ mysql> show slave status \G;
 参数说明:
 
 - ```Slave_IO_State: Waiting for source to send event```: slave 连接到 master 的状态，```Waiting for source to send event``` 表示已经成功连接到 master，正等待二进制日志事件的到达
-- ```Master_Log_File: mysql-bin.000002```: 主库 file 项对应的值
-- ```Read_Master_Log_Pos: 156```: 主库 position 项对应的值
+- ```Master_Log_File: mysql-bin.000003```: 主库 file 项对应的值
+- ```Read_Master_Log_Pos: 873```: 主库 position 项对应的值
 - ```Slave_IO_Running: Yes```: ```IO/thread``` 是否启动，连接到主库，并读取主库的日志到本地，生成本地日志文件，```Yes``` 表示正常
 - ```Slave_SQL_Running: Yes```: ```SQL thread``` 是否启动，读取本地日志文件，并执行日志里的 SQL 命令，```Yes``` 表示正常
 
