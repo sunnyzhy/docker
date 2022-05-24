@@ -1,4 +1,4 @@
-# docker-mysql 集群 (bridge)
+# docker-mysql 主从 (bridge)
 
 ## 前言
 
