@@ -4,7 +4,12 @@
 
 - nginx 版本: ```nginx:latest```
 
-- 网络配置: 驱动类型为 bridge
+- 网络配置: 驱动类型为 bridge，名称为 nginx
+
+- 容器与宿主机映射
+    |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|--|
+    |nginx|-|80|192.168.204.107|80|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf< /br>/usr/local/docker/nginx/html:/usr/share/nginx/html< /br>/usr/local/docker/nginx/logs:/var/log/nginx|
 
 - nginx:latest 镜像配置文件 nginx.conf
     ```conf
@@ -52,6 +57,52 @@ REPOSITORY               TAG       IMAGE ID       CREATED        SIZE
 nginx                    latest    605c77e624dd   4 months ago   141MB
 ```
 
+## 创建网络
+
+```bash
+# docker network create nginx
+
+# docker network ls
+NETWORK ID     NAME            DRIVER    SCOPE
+b0308476ccc3   bridge          bridge    local
+3724599c2452   host            host      local
+d61017ea048b   mysql           bridge    local
+9528cdf78a57   nginx           bridge    local
+cad7d065639d   none            null      local
+
+# docker network inspect nginx
+[
+    {
+        "Name": "nginx",
+        "Id": "9528cdf78a579e4b2e809e092b2ce349581587df9f81a1487571150f1f50af7c",
+        "Created": "2022-05-24T23:03:56.56606096-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.21.0.0/16",
+                    "Gateway": "172.21.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
 ## 在宿主机上创建 nginx 目录
 
 ```bash
@@ -64,7 +115,7 @@ conf  html  logs
 ## 把容器中的 nginx.conf 复制到宿主机的 nginx/conf 目录
 
 ```bash
-# docker run --name nginx -p 80:80 -d nginx:latest
+# docker run --name nginx --net nginx -p 80:80 -d nginx:latest
 
 # docker cp nginx:/etc/nginx/nginx.conf /usr/local/docker/nginx/conf/
 ```
@@ -86,6 +137,11 @@ services:
    - /usr/local/docker/nginx/logs:/var/log/nginx
   ports:
    - 80:80
+  networks:
+   - nginx
+networks:
+  nginx:
+    name: nginx
 ```
 
 ## 启动 docker-compose
@@ -106,6 +162,29 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 
 ## 访问 nginx
 
-```
-http://${宿主机IP}/
+```bash
+# curl -XGET http://192.168.204.107
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
 ```
