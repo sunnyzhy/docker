@@ -9,7 +9,7 @@
 - 容器与宿主机映射
     |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|--|
-    |nginx|-|80|192.168.204.107|80|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf< /br>/usr/local/docker/nginx/html:/usr/share/nginx/html< /br>/usr/local/docker/nginx/logs:/var/log/nginx|
+    |nginx|-|80|192.168.204.107|80|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf<br />/usr/local/docker/nginx/html:/usr/share/nginx/html<br />/usr/local/docker/nginx/logs:/var/log/nginx|
 
 - nginx:latest 镜像配置文件 nginx.conf
     ```conf
