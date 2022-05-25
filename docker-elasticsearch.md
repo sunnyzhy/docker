@@ -9,7 +9,7 @@
 - 容器与宿主机映射
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |elasticsearch|-|9200:9200<br />9300:9300|192.168.204.107|/usr/local/docker/elasticsearch/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/data:/usr/share/elasticsearch/data|
+    |elasticsearch|-|9200:9200<br />9300:9300|192.168.204.107|/usr/local/docker/elasticsearch/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/logs:/usr/share/elasticsearch/logs|
 
 - elasticsearch:7.12.1 镜像配置文件 elasticsearch.yml
     ```yml
@@ -88,8 +88,10 @@ cad7d065639d   none            null      local
 
 # docker cp elasticsearch:/usr/share/elasticsearch/data/ /usr/local/docker/elasticsearch/
 
+# docker cp elasticsearch:/usr/share/elasticsearch/logs/ /usr/local/docker/elasticsearch/
+
 # ls /usr/local/docker/elasticsearch
-config  data
+config  data  logs
 ```
 
 ## 配置 docker-compose.yml
@@ -106,6 +108,7 @@ services:
   volumes:
    - /usr/local/docker/elasticsearch/config:/usr/share/elasticsearch/config
    - /usr/local/docker/elasticsearch/data:/usr/share/elasticsearch/data
+   - /usr/local/docker/elasticsearch/data:/usr/share/elasticsearch/logs
   ports:
    - 9200:9200
    - 9300:9300
