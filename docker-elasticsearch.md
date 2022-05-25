@@ -6,6 +6,11 @@
 
 - 网络配置: 驱动类型为 bridge，名称为 elasticsearch
 
+- 容器与宿主机映射
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|
+    |elasticsearch|-|9200:9200<br />9300:9300|192.168.204.107|/usr/local/docker/elasticsearch/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/data:/usr/share/elasticsearch/data|
+
 - elasticsearch:7.12.1 镜像配置文件 elasticsearch.yml
     ```yml
     cluster.name: "docker-cluster"
