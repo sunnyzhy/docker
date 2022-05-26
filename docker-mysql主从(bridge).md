@@ -4,7 +4,7 @@
 
 - mysql 版本: ```mysql:latest```，此示例为 ```mysql:8```
 
-- 网络配置: 驱动类型为 bridge，名称为 mysql ，子网掩码为 ```192.168.0.0/24```
+- 网络配置: 驱动类型为 bridge，名称为 mysql ，子网掩码为 ```192.168.1.0/24```，网关为 ```192.168.1.1```
 
 - mysql 主从
     |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
@@ -37,7 +37,7 @@ mysql         latest    3218b38490ce   5 months ago   516MB
 ## 创建网络
 
 ```bash
-# docker network create mysql --subnet 192.168.0.0/24
+# docker network create mysql --subnet 192.168.1.0/24 --gateway=192.168.1.1
 
 # docker network ls
 NETWORK ID     NAME      DRIVER    SCOPE
@@ -60,7 +60,8 @@ cad7d065639d   none      null      local
             "Options": {},
             "Config": [
                 {
-                    "Subnet": "192.168.0.0/24"
+                    "Subnet": "192.168.1.0/24",
+                    "Gateway": "192.168.1.1"
                 }
             ]
         },
@@ -83,7 +84,9 @@ cad7d065639d   none      null      local
 ```bash
 # mkdir -p /usr/local/docker/mysql
 
-# vim /usr/local/docker/mysql/create-mysql-node.sh
+# > /usr/local/docker/mysql/create-node.sh
+
+# vim /usr/local/docker/mysql/create-node.sh
 mkdir -p /usr/local/docker/mysql/{master,slave}
 cd /usr/local/docker/mysql/master
 mkdir conf data mysql-files
@@ -106,17 +109,19 @@ server-id=2
 log-bin=mysql-bin
 EOF
 
-# chmod +x /usr/local/docker/mysql/create-mysql-node.sh
+# chmod +x /usr/local/docker/mysql/create-node.sh
 
-# /usr/local/docker/mysql/create-mysql-node.sh
+# /usr/local/docker/mysql/create-node.sh
 
 # ls
-create-mysql-node.sh  master  slave
+create-node.sh  master  slave
 ```
 
 ## 配置 docker-compose.yml
 
 ```bash
+# > /usr/local/docker/mysql/docker-compose.yml
+
 # vim /usr/local/docker/mysql/docker-compose.yml
 version: '3.9'
 
@@ -135,7 +140,7 @@ services:
    - 3306:3306
   networks:
    mysql:
-    ipv4_address: 192.168.0.21
+    ipv4_address: 192.168.1.10
  mysql-slave:
   image: mysql:latest
   container_name: mysql-slave
@@ -150,10 +155,10 @@ services:
    - 3307:3306
   networks:
    mysql:
-    ipv4_address: 192.168.0.22
+    ipv4_address: 192.168.1.11
 networks:
   mysql:
-   external: true
+   name: mysql
 ```
 
 ## 启动 docker-compose
@@ -168,6 +173,57 @@ networks:
 CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                                                  NAMES
 83bf12e150e4   mysql:latest   "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes   33060/tcp, 0.0.0.0:3307->3306/tcp, :::3307->3306/tcp   mysql-slave
 0eff608cd955   mysql:latest   "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 33060/tcp   mysql-master
+```
+
+## 查看网络
+
+```bash
+# docker network inspect mysql
+[
+    {
+        "Name": "mysql",
+        "Id": "b0ab153c738762a03d1ed0c3e82dacd81573a6f179ec261d89dd4abb504c6b68",
+        "Created": "2022-05-25T23:31:30.143462282-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.1.0/24",
+                    "Gateway": "192.168.1.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "b275ce51762492061c1d074581e43cedf4843c4e6393d17ac5f943e77e23e4d5": {
+                "Name": "mysql-slave",
+                "EndpointID": "21722074da2b8a8a8197bfa7a97ee66b42f59508992b937f84d03ff0ba4c97cc",
+                "MacAddress": "02:42:c0:a8:01:0b",
+                "IPv4Address": "192.168.1.11/24",
+                "IPv6Address": ""
+            },
+            "b5e1d87462c3c9faa3868f18c321e3eeb232e37040151933ae99410c155122a4": {
+                "Name": "mysql-master",
+                "EndpointID": "e40c448b7114c7dc76f9b5bbc78b51b7e5fca5177aaee76eee1fbf9bebe98ad2",
+                "MacAddress": "02:42:c0:a8:01:0a",
+                "IPv4Address": "192.168.1.10/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
 ```
 
 ## 配置主从同步
@@ -225,7 +281,7 @@ mysql> stop slave;
 
 mysql> reset slave;
 
-mysql> change master to master_host='192.168.204.107',master_port=3306,master_user='slave',master_password='root',master_log_file='mysql-bin.000003',master_log_pos=874;
+mysql> change master to master_host='192.168.1.10',master_port=3306,master_user='slave',master_password='root',master_log_file='mysql-bin.000003',master_log_pos=874;
 
 mysql> start slave;
 ```
@@ -236,7 +292,7 @@ mysql> start slave;
 mysql> show slave status \G;
 *************************** 1. row ***************************
                Slave_IO_State: Waiting for source to send event
-                  Master_Host: 192.168.204.107
+                  Master_Host: 192.168.1.10
                   Master_User: slave
                   Master_Port: 3306
                 Connect_Retry: 60
