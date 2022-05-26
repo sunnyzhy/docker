@@ -31,7 +31,7 @@ redis                                           latest    7614ae9453d1   4 month
 ```bash
 # mkdir -p /usr/local/docker/redis
 
-# vim /usr/local/docker/redis/create-redis-node.sh
+# vim /usr/local/docker/redis/create-node.sh
 for index in $(seq 1 6);
 do
 mkdir -p /usr/local/docker/redis/node-${index}/conf
@@ -47,12 +47,12 @@ appendonly yes
 EOF
 done
 
-# chmod +x /usr/local/docker/redis/create-redis-node.sh
+# chmod +x /usr/local/docker/redis/create-node.sh
 
-# /usr/local/docker/redis/create-redis-node.sh
+# /usr/local/docker/redis/create-node.sh
 
 # ls /usr/local/docker/redis
-create-redis-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
+create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
 ## 配置 docker-compose.yml
@@ -83,7 +83,7 @@ done
 # /usr/local/docker/redis/create-docker-compose.sh
 
 # ls /usr/local/docker/redis
-create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
+create-docker-compose.sh  create-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
 ***完整的 docker-compose.yml:***
