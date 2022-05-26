@@ -9,8 +9,8 @@
 - mysql 主从
     |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
     |--|--|--|--|--|--|
-    |mysql-master|192.168.0.21|3306|192.168.204.107|3306|/usr/local/docker/mysql/master|
-    |mysql-slave|192.168.0.22|3306|192.168.204.107|3307|/usr/local/docker/mysql/slave|
+    |mysql-master|192.168.1.10|3306|192.168.204.107|3306|/usr/local/docker/mysql/master|
+    |mysql-slave|192.168.1.11|3306|192.168.204.107|3307|/usr/local/docker/mysql/slave|
 
 - mysql:8 镜像配置文件 my.cnf
     ```cnf
