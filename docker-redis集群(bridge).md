@@ -4,7 +4,7 @@
 
 - redis版本: ```redis:latest```
 
-- 网络配置: 驱动类型为 bridge，名称为 redis ，子网掩码为 ```192.168.0.0/24```
+- 网络配置: 驱动类型为 bridge，名称为 redis ，子网掩码为 ```192.168.0.0/24```，网关为 ```192.168.0.1```
 
 - 启动六个 redis
     |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
@@ -29,7 +29,7 @@ redis                                           latest    7614ae9453d1   4 month
 ## 创建网络
 
 ```bash
-# docker network create redis --subnet 192.168.0.0/24
+# docker network create redis --subnet 192.168.0.0/24 --gateway=192.168.0.1
 
 # docker network ls
 NETWORK ID     NAME             DRIVER    SCOPE
@@ -54,7 +54,8 @@ f79b0ef50b9c   redis            bridge    local
             "Options": {},
             "Config": [
                 {
-                    "Subnet": "192.168.0.0/24"
+                    "Subnet": "192.168.0.0/24",
+                    "Gateway": "192.168.0.1"
                 }
             ]
         },
@@ -77,7 +78,9 @@ f79b0ef50b9c   redis            bridge    local
 ```bash
 # mkdir -p /usr/local/docker/redis
 
-# vim /usr/local/docker/redis/create-redis-node.sh
+# > /usr/local/docker/redis/create-node.sh
+
+# vim /usr/local/docker/redis/create-node.sh
 for index in $(seq 1 6);
 do
 mkdir -p /usr/local/docker/redis/node-${index}/conf
@@ -94,17 +97,19 @@ appendonly yes
 EOF
 done
 
-# chmod +x /usr/local/docker/redis/create-redis-node.sh
+# chmod +x /usr/local/docker/redis/create-node.sh
 
-# /usr/local/docker/redis/create-redis-node.sh
+# /usr/local/docker/redis/create-node.sh
 
 # ls /usr/local/docker/redis
-create-redis-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
+create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
 ## 配置 docker-compose.yml
 
 ```bash
+# > /usr/local/docker/redis/create-docker-compose.sh
+
 # vim /usr/local/docker/redis/create-docker-compose.sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
@@ -131,14 +136,14 @@ echo "      ipv4_address: 192.168.0.1"${index} >> docker-compose.yml
 done
 echo "networks:" >> docker-compose.yml
 echo "    redis:" >> docker-compose.yml
-echo "      external: true" >> docker-compose.yml
+echo "      name: redis" >> docker-compose.yml
 
 # chmod +x /usr/local/docker/redis/create-docker-compose.sh
 
 # /usr/local/docker/redis/create-docker-compose.sh
 
 # ls /usr/local/docker/redis
-create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
+create-docker-compose.sh  create-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
 ```
 
 ***注，关于自定义 network 的使用方法:***
@@ -163,7 +168,7 @@ create-docker-compose.sh  create-redis-node.sh  docker-compose.yml  node-1  node
     ```yml
     networks:
         network-name:
-          external: true
+          name: network-name
     ```
 4. 否则在使用 ```docker-compose up -d``` 时, 会报错 ```ERROR: Service "service-name" uses an undefined network "network-name"```
 
@@ -259,7 +264,7 @@ services:
       ipv4_address: 192.168.0.16
 networks:
     redis:
-      external: true
+      name: redis
 ```
 
 ## 启动 docker-compose
@@ -283,6 +288,87 @@ ba0aef2f5880   redis:latest             "docker-entrypoint.s…"   28 seconds ag
 83bcb0c72101   redis:latest             "docker-entrypoint.s…"   28 seconds ago   Up 25 seconds   0.0.0.0:6371->6379/tcp, :::6371->6379/tcp, 0.0.0.0:16371->16379/tcp, :::16371->16379/tcp         redis-1
 640ad956d77f   redis:latest             "docker-entrypoint.s…"   28 seconds ago   Up 25 seconds   0.0.0.0:6373->6379/tcp, :::6373->6379/tcp, 0.0.0.0:16373->16379/tcp, :::16373->16379/tcp         redis-3
 ```
+
+## 查看网络
+
+```bash
+# docker network inspect redis
+[
+    {
+        "Name": "redis",
+        "Id": "efec85c6b337dd2b0a0223b8bedbda2d77aa1083523e73c2a0280abc84553ee7",
+        "Created": "2022-05-25T21:31:06.419183514-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.0.0/24",
+                    "Gateway": "192.168.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "4d79a4dc2a29eba7496797747dec11b61974c9287e0e68e7e504137b46170749": {
+                "Name": "redis-2",
+                "EndpointID": "203c906b40a34063dde7fb790a6c1a9f8fcdd6b865008e006110469c44a58c5a",
+                "MacAddress": "02:42:c0:a8:00:0c",
+                "IPv4Address": "192.168.0.12/24",
+                "IPv6Address": ""
+            },
+            "54f02643022c01d48925f7511bedd8c6a0b14497a725f062e05a058776c04602": {
+                "Name": "redis-5",
+                "EndpointID": "d9d75d9bbc9feb12582241e01ffdd2221517381461aac6423290430f135118a1",
+                "MacAddress": "02:42:c0:a8:00:0f",
+                "IPv4Address": "192.168.0.15/24",
+                "IPv6Address": ""
+            },
+            "6441cb03a85409131f0f935c7a6b2609d786b29a4d6e9d00d80e9a991acd735f": {
+                "Name": "redis-3",
+                "EndpointID": "85712e08f8dba4ed22b8223343be902a6c762f52c4a1c676e1b15e4a47dccee0",
+                "MacAddress": "02:42:c0:a8:00:0d",
+                "IPv4Address": "192.168.0.13/24",
+                "IPv6Address": ""
+            },
+            "833b8c8c96e95474641e78e9eb1041862d729853633312ce89ed07586270f677": {
+                "Name": "redis-4",
+                "EndpointID": "0d26640bbd82281858ad48b1e206b4dc4a7d70e6a85d004f09c0ebf32c53dd79",
+                "MacAddress": "02:42:c0:a8:00:0e",
+                "IPv4Address": "192.168.0.14/24",
+                "IPv6Address": ""
+            },
+            "94c1e015d2272a7e1f0e5c79f8d3e41613267aee3ec8aaa1773dbf41a59b0d65": {
+                "Name": "redis-1",
+                "EndpointID": "b2e97b4425c8b148c5e204bd3a6406c994be11080d0760c72338a47a43d9a0a7",
+                "MacAddress": "02:42:c0:a8:00:0b",
+                "IPv4Address": "192.168.0.11/24",
+                "IPv6Address": ""
+            },
+            "fccfc328759a319f7c6d13f68a6d9a23c98169dd152c3d274859ad17eb6591fb": {
+                "Name": "redis-6",
+                "EndpointID": "8857040b2e2835dfd5844d70eab9a42f96c855bd895bca9cb3ee0465b04b3bff",
+                "MacAddress": "02:42:c0:a8:00:10",
+                "IPv4Address": "192.168.0.16/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+***容器 redis-1,redis-2,redis-3,redis-4,redis-5,redis-6 都已经加入到了 redis 网络中。***
 
 ## 创建集群
 
