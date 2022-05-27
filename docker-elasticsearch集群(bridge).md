@@ -9,9 +9,9 @@
 - 容器与宿主机映射
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |elasticsearch|192.168.3.11|9200:9200<br />9300:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-1/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-1/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-1/logs:/usr/share/elasticsearch/logs|
-    |elasticsearch|192.168.3.12|9201:9200<br />9301:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-2/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-2/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-2/logs:/usr/share/elasticsearch/logs|
-    |elasticsearch|192.168.3.13|9202:9200<br />9302:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-3/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-3/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-3/logs:/usr/share/elasticsearch/logs|
+    |elasticsearch-1|192.168.3.11|9200:9200<br />9300:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-1/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-1/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-1/logs:/usr/share/elasticsearch/logs|
+    |elasticsearch-2|192.168.3.12|9201:9200<br />9301:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-2/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-2/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-2/logs:/usr/share/elasticsearch/logs|
+    |elasticsearch-3|192.168.3.13|9202:9200<br />9302:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-3/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-3/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-3/logs:/usr/share/elasticsearch/logs|
 
 - elasticsearch:7.12.1 镜像配置文件 elasticsearch.yml
     ```yml
