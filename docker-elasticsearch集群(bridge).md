@@ -309,9 +309,9 @@ ip           heap.percent ram.percent cpu load_1m load_5m load_15m node.role   m
    系统虚拟内存默认最大映射数为 65530，无法满足 ES 要求，需要把系统虚拟内存调整为 262144 以上。
 
 - 解决办法
-```bash
-# vim /etc/sysctl.conf
-vm.max_map_count = 262144
+    ```bash
+    # vim /etc/sysctl.conf
+    vm.max_map_count = 262144
 
-# sysctl -p
-```
+    # sysctl -p
+    ```
