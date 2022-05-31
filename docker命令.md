@@ -126,3 +126,40 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ``` bash
 RUN echo "Asia/shanghai" > /etc/timezone
 ```
+
+## 清理数据卷/镜像/容器
+
+### 查看没有被使用的数据卷
+
+```bash
+# docker volume ls -qf dangling=true
+```
+
+### 删除没有被使用的数据卷
+
+```bash
+# docker volume rm $(docker volume ls -qf dangling=true)
+```
+
+### 删除没有被使用的镜像
+
+- 删除名称或标签为 none 的镜像
+    ```bash
+    # docker rmi $(docker images | grep "<none>" | awk "{print $3}")
+    ```
+- 删除没有被使用的镜像
+    ```bash
+    # docker image prune -a
+    ```
+
+### 删除已经停止运行的容器
+
+```bash
+# docker rm $(docker ps --all -q -f status=exited)
+```
+
+### 删除关闭的容器、被使用的数据卷和网络
+
+```bash
+# docker system prune
+```
