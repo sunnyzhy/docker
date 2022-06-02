@@ -259,3 +259,46 @@ enabled=0
 gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
 ```
+
+## 修改容器内的 apt-get 源
+
+1. 进入容器
+    ```bash
+    # docker exec -u 0 -it <container id/name> /bin/sh
+    ```
+2. 查看 apt-get 源
+    ```bash
+    # cat /etc/apt/sources.list
+    ```
+    内容:
+    ```
+    # deb http://snapshot.debian.org/archive/debian/20211220T000000Z bullseye main
+    deb http://deb.debian.org/debian bullseye main
+    # deb http://snapshot.debian.org/archive/debian-security/20211220T000000Z bullseye-security main
+    deb http://security.debian.org/debian-security bullseye-security main
+    # deb http://snapshot.debian.org/archive/debian/20211220T000000Z bullseye-updates main
+    deb http://deb.debian.org/debian bullseye-updates main
+    ```
+3. 修改 apt-get 源为阿里云
+    ```bash
+    # sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+    # sed -i s@/security.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+    ```
+4. 查看 apt-get 源
+    ```bash
+    # cat /etc/apt/sources.list
+    ```
+    内容:
+    ```
+    # deb http://snapshot.debian.org/archive/debian/20211220T000000Z bullseye main
+    deb http://mirrors.aliyun.com/debian bullseye main
+    # deb http://snapshot.debian.org/archive/debian-security/20211220T000000Z bullseye-security main
+    deb http://mirrors.aliyun.com/debian-security bullseye-security main
+    # deb http://snapshot.debian.org/archive/debian/20211220T000000Z bullseye-updates main
+    deb http://mirrors.aliyun.com/debian bullseye-updates main
+    ```
+5. 更新 apt-get
+    ```bash
+    # apt-get clean
+    # apt-get update
+    ```
