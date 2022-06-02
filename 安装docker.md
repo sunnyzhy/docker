@@ -279,7 +279,7 @@ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
     # deb http://snapshot.debian.org/archive/debian/20211220T000000Z bullseye-updates main
     deb http://deb.debian.org/debian bullseye-updates main
     ```
-3. 修改 apt-get 源为阿里云
+3. 修改 apt-get 源为阿里云，apt-get 源是其他域名（此处是 deb.debian.org）的修改方法相同
     ```bash
     # sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list
     # sed -i s@/security.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list
