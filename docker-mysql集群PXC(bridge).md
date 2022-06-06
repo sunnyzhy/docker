@@ -744,6 +744,18 @@ virtual_server 192.168.204.100 18081 {
     }
 }
 EOF
+
+> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo "#!/bin/bash" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo 'count=`netstat -apn | grep 33060 | wc -l`' >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo 'if [ $count -gt 0 ]; then' >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo "    exit 0" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo "else" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo "    exit 1" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+echo "fi" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+
+chmod +x /usr/local/docker/keepalived/master/check-haproxy.sh
+
 mkdir -p /usr/local/docker/keepalived/backup/config
 > /usr/local/docker/keepalived/backup/config/keepalived.conf
 cat << EOF >> /usr/local/docker/keepalived/backup/config/keepalived.conf
@@ -797,12 +809,35 @@ virtual_server 192.168.204.100 18081 {
 }
 EOF
 
+> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo "#!/bin/bash" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo 'count=`netstat -apn | grep 33061 | wc -l`' >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo 'if [ $count -gt 0 ]; then' >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo "    exit 0" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo "else" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo "    exit 1" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+echo "fi" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+
+chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
+
 # chmod +x /usr/local/docker/keepalived/create-node.sh
 
 # /usr/local/docker/keepalived/create-node.sh
 
 # ls /usr/local/docker/keepalived/
 backup  create-node.sh  master
+```
+
+***完事的 check-haproxy.sh: ***
+
+```sh
+#!/bin/bash
+count=`netstat -apn | grep 33060 | wc -l`
+if [ $count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
 ```
 
 ### 配置 docker-compose.yml
@@ -824,6 +859,7 @@ services:
    - NET_RAW
   volumes:
    - /usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf
+   - /usr/local/docker/keepalived/master/check-haproxy.sh:/usr/bin/check-haproxy.sh
    - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
   network_mode: host
  keepalived-backup:
@@ -836,6 +872,7 @@ services:
    - NET_RAW
   volumes:
    - /usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf
+   - /usr/local/docker/keepalived/backup/check-haproxy.sh:/usr/bin/check-haproxy.sh
    - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
   network_mode: host
 ```
