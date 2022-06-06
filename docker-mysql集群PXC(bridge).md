@@ -828,7 +828,7 @@ chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
 backup  create-node.sh  master
 ```
 
-***完事的 check-haproxy.sh: ***
+***完整的 check-haproxy.sh:***
 
 ```sh
 #!/bin/bash
