@@ -394,14 +394,14 @@ networks:
     ```
 2. 启动  nameserver
     ```bash
-    # docker-compose -f /usr/local/docker/rocketmq/namesrv-docker-compose.yml up -d
+    # docker-compose -p namesrv -f /usr/local/docker/rocketmq/namesrv-docker-compose.yml up -d
     [+] Running 2/2
      ⠿ Container mqnamesrv-1  Started                                                                                1.1s
      ⠿ Container mqnamesrv-2  Started                                                                                1.1s
     ```
 3. 启动 broker
     ```bash
-    # docker-compose -f /usr/local/docker/rocketmq/broker-docker-compose.yml up -d
+    # docker-compose -p broker -f /usr/local/docker/rocketmq/broker-docker-compose.yml up -d
     [+] Running 5/5
      ⠿ Container mqbroker-b    Started                                                                               1.5s
      ⠿ Container mqdashboard   Started                                                                               2.2s
@@ -514,3 +514,18 @@ networks:
 ```
 http://192.168.204.107:8080/
 ```
+
+## FAQ
+
+### WARN[0000] Found orphan containers ([mqnamesrv-1 mqnamesrv-2]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up. 
+
+- 原因
+
+    如果将多个 docker-compose.yml 放在同一个目录下，在 docker 运行时生成的镜像实例会有相同的前缀，就是当前的目录名，也就是说默认相同前缀的是同一组实例，所以在当前目录下还有别的 xxx-docker-compose.yml 配置文件，在运行时就会出现以上警告
+
+- 解决办法
+   1. 在启动时重命名实例
+      ```bash
+      # docker-compose -p broker -f /usr/local/docker/rocketmq/broker-docker-compose.yml up -d
+      ```
+   2. 将文件放在不同的目录下运行
