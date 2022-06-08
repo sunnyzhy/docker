@@ -144,12 +144,16 @@ listenPort=10911
 EOF
 docker cp mqbroker:/home/rocketmq/logs /usr/local/docker/rocketmq/node/broker-a
 docker cp mqbroker:/home/rocketmq/store /usr/local/docker/rocketmq/node/broker-a
+chmod -R 777 /usr/local/docker/rocketmq/node/broker-a
 cp -r /usr/local/docker/rocketmq/node/broker-a/logs /usr/local/docker/rocketmq/node/broker-a-s
 cp -r /usr/local/docker/rocketmq/node/broker-a/store /usr/local/docker/rocketmq/node/broker-a-s
+chmod -R 777 /usr/local/docker/rocketmq/node/broker-a-s
 cp -r /usr/local/docker/rocketmq/node/broker-a/logs /usr/local/docker/rocketmq/node/broker-b
 cp -r /usr/local/docker/rocketmq/node/broker-a/store /usr/local/docker/rocketmq/node/broker-b
+chmod -R 777 /usr/local/docker/rocketmq/node/broker-b
 cp -r /usr/local/docker/rocketmq/node/broker-a/logs /usr/local/docker/rocketmq/node/broker-b-s
 cp -r /usr/local/docker/rocketmq/node/broker-a/store /usr/local/docker/rocketmq/node/broker-b-s
+chmod -R 777 /usr/local/docker/rocketmq/node/broker-b-s
 mkdir -p /usr/local/docker/rocketmq/dashboard/conf
 docker cp mqdashboard:/root/logs /usr/local/docker/rocketmq/dashboard
 > /usr/local/docker/rocketmq/dashboard/conf/application.properties
@@ -264,12 +268,10 @@ broker-a  broker-a-s  broker-b  broker-b-s  namesrv-1  namesrv-2
 
 ## 配置 docker-compose.yml
 
-### 配置 namesrv
-
 ```bash
-# > /usr/local/docker/rocketmq/namesrv-docker-compose.yml
+# > /usr/local/docker/rocketmq/docker-compose.yml
 
-# vim /usr/local/docker/rocketmq/namesrv-docker-compose.yml
+# vim /usr/local/docker/rocketmq/docker-compose.yml
 version: '3.9'
 
 services:
@@ -297,20 +299,6 @@ services:
   networks:
     rocketmq:
       ipv4_address: 192.168.4.11
-networks:
-    rocketmq:
-      name: rocketmq
-```
-
-### 配置 broker
-
-```bash
-# > /usr/local/docker/rocketmq/broker-docker-compose.yml
-
-# vim /usr/local/docker/rocketmq/broker-docker-compose.yml
-version: '3.9'
-
-services:
  mqbroker-a:
   image: apache/rocketmq:latest
   container_name: mqbroker-a
@@ -320,6 +308,9 @@ services:
    - /usr/local/docker/rocketmq/node/broker-a/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-a/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-a.properties
+  links:
+   - mqnamesrv-1:mqnamesrv-1
+   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10911:10911
   networks:
@@ -334,6 +325,9 @@ services:
    - /usr/local/docker/rocketmq/node/broker-a-s/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-a-s/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-a-s.properties
+  links:
+   - mqnamesrv-1:mqnamesrv-1
+   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10912:10911
   networks:
@@ -348,6 +342,9 @@ services:
    - /usr/local/docker/rocketmq/node/broker-b/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-b/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-b.properties
+  links:
+   - mqnamesrv-1:mqnamesrv-1
+   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10913:10911
   networks:
@@ -362,6 +359,9 @@ services:
    - /usr/local/docker/rocketmq/node/broker-b-s/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-b-s/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-b-s.properties
+  links:
+   - mqnamesrv-1:mqnamesrv-1
+   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10914:10911
   networks:
@@ -374,6 +374,9 @@ services:
   volumes:
    - /usr/local/docker/rocketmq/dashboard/conf/application.properties:/application.properties
    - /usr/local/docker/rocketmq/dashboard/conf/users.properties:/tmp/rocketmq-console/data/users.properties
+  links:
+   - mqnamesrv-1:mqnamesrv-1
+   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 8080:8080
   networks:
@@ -386,42 +389,31 @@ networks:
 
 ## 启动 docker-compose
 
-1. 停止测试用例
-    ```bash
-    # docker stop mqnamesrv mqbroker mqdashboard
+```bash
+# docker stop mqnamesrv mqbroker mqdashboard
 
-    # docker rm mqnamesrv mqbroker mqdashboard
-    ```
-2. 启动  nameserver
-    ```bash
-    # docker-compose -p namesrv -f /usr/local/docker/rocketmq/namesrv-docker-compose.yml up -d
-    [+] Running 2/2
-     ⠿ Container mqnamesrv-1  Started                                                                                1.1s
-     ⠿ Container mqnamesrv-2  Started                                                                                1.1s
-    ```
-3. 启动 broker
-    ```bash
-    # docker-compose -p broker -f /usr/local/docker/rocketmq/broker-docker-compose.yml up -d
-    [+] Running 5/5
-     ⠿ Container mqbroker-b    Started                                                                               1.5s
-     ⠿ Container mqdashboard   Started                                                                               2.2s
-     ⠿ Container mqbroker-b-s  Started                                                                               1.4s
-     ⠿ Container mqbroker-a    Started                                                                               1.8s
-     ⠿ Container mqbroker-a-s  Started                                                                               1.5s
-    ```
-4. 查看容器
-    ```bash
-    # docker ps
-    CONTAINER ID   IMAGE                                      COMMAND                  CREATED              STATUS          PORTS                                                                                            NAMES
-    3aa3b7561cb9   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   About a minute ago   Up 38 seconds   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
-    d8504763ff74   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   About a minute ago   Up 39 seconds   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
-    cef107738455   apache/rocketmq:latest                     "sh mqnamesrv"           About a minute ago   Up 38 seconds   10909/tcp, 0.0.0.0:9876->9876/tcp, :::9876->9876/tcp, 10911-10912/tcp                            mqnamesrv-1
-    ff4737d454df   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"   About a minute ago   Up 39 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
-    25f533d8c186   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   About a minute ago   Up 40 seconds   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
-    ab23b41c93e0   apache/rocketmq:latest                     "sh mqnamesrv"           About a minute ago   Up 39 seconds   10909/tcp, 10911-10912/tcp, 0.0.0.0:9877->9876/tcp, :::9877->9876/tcp                            mqnamesrv-2
-    477dbe3e59b6   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   About a minute ago   Up 39 seconds   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
-    87f90bf70cf0   nginx:latest                               "/docker-entrypoint.…"   2 weeks ago          Up 25 hours  
-    ```
+# docker rm mqnamesrv mqbroker mqdashboard
+
+# docker-compose -f /usr/local/docker/rocketmq/docker-compose.yml up -d
+[+] Running 7/7
+ ⠿ Container mqnamesrv-2   Started                                                                               0.7s
+ ⠿ Container mqnamesrv-1   Started                                                                               0.7s
+ ⠿ Container mqbroker-b    Started                                                                               2.7s
+ ⠿ Container mqdashboard   Started                                                                               2.8s
+ ⠿ Container mqbroker-b-s  Started                                                                               2.7s
+ ⠿ Container mqbroker-a    Started                                                                               2.0s
+ ⠿ Container mqbroker-a-s  Started                                                                               2.1s
+
+# docker ps
+CONTAINER ID   IMAGE                                      COMMAND                  CREATED         STATUS         PORTS                                                                                            NAMES
+25f533d8c186   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
+1f3cd3e2455e   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
+a7a3d4facdce   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
+88b82bdd4433   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
+8a88895d3af5   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"  2 minutes ago   Up 2 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
+54f2502ae04d   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 0.0.0.0:9876->9876/tcp, :::9876->9876/tcp, 10911-10912/tcp                            mqnamesrv-1
+e2f6a814cff5   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 10911-10912/tcp, 0.0.0.0:9877->9876/tcp, :::9877->9876/tcp                            mqnamesrv-2
+```
 
 ## 查看网络
 
@@ -514,18 +506,3 @@ networks:
 ```
 http://192.168.204.107:8080/
 ```
-
-## FAQ
-
-### WARN[0000] Found orphan containers ([mqnamesrv-1 mqnamesrv-2]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up. 
-
-- 原因
-
-    如果将多个 docker-compose.yml 放在同一个目录下，在 docker 运行时生成的镜像实例会有相同的前缀，就是当前的目录名，也就是说默认相同前缀的是同一组实例，所以在当前目录下还有别的 xxx-docker-compose.yml 配置文件，在运行时就会出现以上警告
-
-- 解决办法
-   1. 在启动时重命名实例
-      ```bash
-      # docker-compose -p broker -f /usr/local/docker/rocketmq/broker-docker-compose.yml up -d
-      ```
-   2. 将文件放在不同的目录下运行
