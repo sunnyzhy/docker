@@ -406,11 +406,11 @@ networks:
 
 # docker ps
 CONTAINER ID   IMAGE                                      COMMAND                  CREATED         STATUS         PORTS                                                                                            NAMES
-25f533d8c186   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
-1f3cd3e2455e   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
-a7a3d4facdce   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
-88b82bdd4433   apache/rocketmq:latest                     "sh mqbroker -c /hom…"  2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
-8a88895d3af5   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"  2 minutes ago   Up 2 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
+25f533d8c186   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
+1f3cd3e2455e   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
+a7a3d4facdce   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
+88b82bdd4433   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
+8a88895d3af5   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
 54f2502ae04d   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 0.0.0.0:9876->9876/tcp, :::9876->9876/tcp, 10911-10912/tcp                            mqnamesrv-1
 e2f6a814cff5   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 10911-10912/tcp, 0.0.0.0:9877->9876/tcp, :::9877->9876/tcp                            mqnamesrv-2
 ```
