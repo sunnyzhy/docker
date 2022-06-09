@@ -6,6 +6,8 @@ docker-compose.yml 组成一个 project ，project 里包括多个 service，每
 
 ## docker-compose.yml 详解
 
+[官网compose-file](https://docs.docker.com/compose/compose-file 'compose-file')
+
 ```yml
 version:                  # 指定 docker-compose.yml 文件的版本
 services:                 # 定义所有的服务集合
@@ -17,6 +19,16 @@ services:                 # 定义所有的服务集合
         cache_from:       # 指定缓存的镜像列表，等同于 docker container build --cache_from
         labels:           # 设置镜像的元数据，等同于 docker container build --labels
         shm_size:         # 设置容器 /dev/shm 分区的大小，等同于 docker container build --shm-size
+    cap_add:              # 添加访问权限，是对 privileged: true 的最高权限的细化
+                          示例:
+                          cap_add:              # 等同于 privileged: true
+                            - ALL
+                          ----------------------------------
+                          cap_add:              # 细化权限
+                             - NET_BROADCAST
+                             - NET_ADMIN
+                             - NET_RAW
+
     command:              # 覆盖容器启动后默认执行的命令, 支持 shell 格式和 [] 格式
                           示例:
                           command: bundle exec thin -p 3000
