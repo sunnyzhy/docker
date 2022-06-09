@@ -2,10 +2,18 @@
 
 ## 前言
 
+docker-compose 项目是 docker 官方的开源项目，负责实现对 Docker 容器集合的快速编排。
+
 - docker 版本: 20.10.16
 - docker-compose 版本: 2.5.0
 
 ***注: 版本一定要对应好，否则 docker-compose 在 build 的时候容易出问题。***
+
+docker-compose 将所管理的容器分为 3 层结构:
+
+- 工程（project）
+- 服务（service）
+- 容器（container）
 
 ## 安装 docker-compose
 
