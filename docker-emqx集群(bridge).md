@@ -9,9 +9,9 @@
 - 容器与宿主机映射
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |emqx-1|192.168.5.10|18083:18083<br />1883:1883|192.168.204.107|/usr/local/docker/emqx/node-1/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-1/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-1/log:/opt/emqx/log|
-    |emqx-2|192.168.5.11|18084:18083<br />1884:1883|192.168.204.107|/usr/local/docker/emqx/node-2/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-2/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-2/log:/opt/emqx/log|
-    |emqx-3|192.168.5.20|18085:18083<br />1885:1883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
+    |emqx-1|192.168.5.10|18083:18083<br />1883:1883<br />8883:8883|192.168.204.107|/usr/local/docker/emqx/node-1/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-1/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-1/log:/opt/emqx/log|
+    |emqx-2|192.168.5.11|18084:18083<br />1884:1883<br />8884:8883|192.168.204.107|/usr/local/docker/emqx/node-2/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-2/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-2/log:/opt/emqx/log|
+    |emqx-3|192.168.5.20|18085:18083<br />1885:1883<br />8885:8883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
 
 ## 拉取 emqx 镜像
 
