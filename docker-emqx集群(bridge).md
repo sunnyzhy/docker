@@ -481,6 +481,6 @@ http://192.168.204.107:18083/
 
 ![MQTTX 连接配置 (SSL/TLS)](./images/emqx/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
 
-### dashboard - 客户端
+### dashboard - 连接的客户端
 
-![客户端](./images/emqx/emqx-03.png '客户端')
+![连接的客户端](./images/emqx/emqx-03.png '连接的客户端')
