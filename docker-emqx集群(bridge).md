@@ -67,7 +67,7 @@ b744e71bc3da   emqx                    bridge    local
 
 ## 在宿主机上创建 emqx 目录
 
-***从容器里拷贝配置文件到宿主机。***
+### 编辑 create-node.sh (创建 emqx 目录的 shell 脚本)
 
 ```bash
 # docker run -d --name emqx --privileged=true -p 18083:18083 -p 1883:1883 --network=emqx --ip 192.168.5.10 emqx/emqx:latest
@@ -79,6 +79,7 @@ b744e71bc3da   emqx                    bridge    local
 # vim /usr/local/docker/emqx/create-node.sh
 #!/bin/sh
 mkdir -p /usr/local/docker/emqx/{node-1,node-2,node-3}
+
 ##--------------------------------------------------------------------
 ## 拷贝容器目录到宿主机
 ##--------------------------------------------------------------------
@@ -87,6 +88,7 @@ docker cp emqx:/opt/emqx/data /usr/local/docker/emqx/node-1
 docker cp emqx:/opt/emqx/log /usr/local/docker/emqx/node-1
 cp -r /usr/local/docker/emqx/node-1/* /usr/local/docker/emqx/node-2
 cp -r /usr/local/docker/emqx/node-1/* /usr/local/docker/emqx/node-3
+
 ##--------------------------------------------------------------------
 ## 修改集群配置文件
 ## 1. 禁止匿名登录
@@ -98,7 +100,10 @@ cp -r /usr/local/docker/emqx/node-1/* /usr/local/docker/emqx/node-3
 for index in $(seq 1 3);
 do
 sed -i -e 's+allow_anonymous = true+allow_anonymous = false+' -e 's+cluster.discovery = manual+cluster.discovery = static+' -e 's+node.name = emqx@127.0.0.1+node.name = emqx-1@192.168.5.1'"$(expr ${index} - 1)"'+' /usr/local/docker/emqx/node-${index}/etc/emqx.conf
-echo "cluster.static.seeds = emqx-1@192.168.5.10,emqx-2@192.168.5.11,emqx-3@192.168.5.12" >> /usr/local/docker/emqx/node-${index}/etc/emqx.conf
+cat << EOF >> /usr/local/docker/emqx/node-${index}/etc/emqx.conf
+
+cluster.static.seeds = emqx-1@192.168.5.10,emqx-2@192.168.5.11,emqx-3@192.168.5.12
+EOF
 cat << EOF >> /usr/local/docker/emqx/node-${index}/etc/plugins/emqx_auth_mnesia.conf
 
 auth.client.1.clientid = admin
@@ -108,13 +113,123 @@ auth.user.1.username = admin
 auth.user.1.password = admin
 EOF
 done
+
 ##--------------------------------------------------------------------
 ## 数据目录授权
 ##--------------------------------------------------------------------
 chmod -R 777 /usr/local/docker/emqx/node-1/{data,log}
 chmod -R 777 /usr/local/docker/emqx/node-2/{data,log}
 chmod -R 777 /usr/local/docker/emqx/node-3/{data,log}
+```
 
+### 配置 SSL/TLS
+
+***如果不使用 SSL/TLS 连接，可以跳过该步骤。***
+
+#### 生成证书
+
+1. 创建 ca 目录
+    ```bash
+    # mkdir -p /usr/local/docker/ca
+    # cd /usr/local/docker/ca
+    ```
+
+2. 生成根证书私钥
+    ```bash
+    # openssl genrsa -out ca.key 2048
+    ```
+
+3. 生成根证书，提示需要输入省份、城市等信息，可随便填写
+    ```bash
+    # openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.pem
+    ```
+
+4. 生成服务端证书私钥
+    ```bash
+    # openssl genrsa -out emqx.key 2048
+    ```
+
+5. 生成服务端证书请求
+    ```bash
+    # vim openssl.cnf
+    [req]
+    default_bits  = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    x509_extensions = v3_req
+    prompt = no
+    [req_distinguished_name]
+    countryName = CN
+    stateOrProvinceName = Hubei
+    localityName = Wuhan
+    organizationName = EMQX
+    commonName = CA
+    [req_ext]
+    subjectAltName = @alt_names
+    [v3_req]
+    subjectAltName = @alt_names
+    [alt_names]
+    IP.1 = 192.168.204.107
+    DNS.1 = 8.8.8.8
+
+    # openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csr
+    ```
+    ***IP.1 和 DNS.1 根据实际情况填写。***
+
+6. 生成服务端证书
+    ```bash
+    # openssl x509 -req -in ./emqx.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out emqx.pem -days 3650 -sha256 -extensions v3_req -extfile openssl.cnf
+    ```
+
+7. 生成客户端证书私钥
+    ```bash
+    # openssl genrsa -out client.key 2048
+    ```
+
+8. 生成客户端证书请求
+    ```bash
+    # openssl req -new -key client.key -out client.csr -subj "/C=CN/ST=CN/L=CN/O=EMQX/CN=client"
+    ```
+
+9. 生成客户端证书
+    ```bash
+    # openssl x509 -req -days 3650 -in client.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out client.pem
+    ```
+
+10. 查看 ca 目录
+    ```bash
+    # ls /usr/local/docker/ca
+    ca.key  ca.pem  ca.srl  client.csr  client.key  client.pem  emqx.csr  emqx.key  emqx.pem  openssl.cnf
+    ```
+
+#### 配置双向认证
+
+在 create-node.sh 文件里添加以下内容:
+
+```bash
+# vim /usr/local/docker/emqx/create-node.sh
+
+##--------------------------------------------------------------------
+## 配置双向认证
+## 1. 拷贝证书到挂载的宿主机目录
+## 2. 修改 emqx.conf 里的证书配置项
+##--------------------------------------------------------------------
+for index in $(seq 1 3);
+do
+cp /usr/local/docker/ca/{emqx.key,emqx.pem,ca.pem} /usr/local/docker/emqx/node-${index}/etc/certs/
+sed -i -e 's+listener.ssl.external.keyfile = etc/certs/key.pem+listener.ssl.external.keyfile = /opt/emqx/etc/certs/emqx.key+' -e 's+listener.ssl.external.certfile = etc/certs/cert.pem+listener.ssl.external.certfile = /opt/emqx/etc/certs/emqx.pem+' /usr/local/docker/emqx/node-${index}/etc/emqx.conf
+cat << EOF >>  /usr/local/docker/emqx/node-${index}/etc/emqx.conf
+
+listener.ssl.external.cacertfile = /opt/emqx/etc/certs/ca.pem
+listener.ssl.external.verify = verify_peer
+listener.ssl.external.fail_if_no_peer_cert = true
+EOF
+done
+```
+
+### 创建 emqx 目录
+
+```bash
 # chmod +x /usr/local/docker/emqx/create-node.sh
 
 # /usr/local/docker/emqx/create-node.sh
@@ -150,6 +265,8 @@ cat << EOF >> /usr/local/docker/emqx/docker-compose.yml
    - /usr/local/docker/emqx/node-${index}/etc:/opt/emqx/etc
    - /usr/local/docker/emqx/node-${index}/data:/opt/emqx/data
    - /usr/local/docker/emqx/node-${index}/log:/opt/emqx/log
+   - /etc/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
   environment:
    EMQX_NAME: emqx-${index}
    EMQX_HOST: 192.168.5.1$(expr ${index} - 1)
@@ -190,6 +307,8 @@ services:
    - /usr/local/docker/emqx/node-1/etc:/opt/emqx/etc
    - /usr/local/docker/emqx/node-1/data:/opt/emqx/data
    - /usr/local/docker/emqx/node-1/log:/opt/emqx/log
+   - /etc/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
   environment:
    EMQX_NAME: emqx-1
    EMQX_HOST: 192.168.5.10
@@ -208,6 +327,8 @@ services:
    - /usr/local/docker/emqx/node-2/etc:/opt/emqx/etc
    - /usr/local/docker/emqx/node-2/data:/opt/emqx/data
    - /usr/local/docker/emqx/node-2/log:/opt/emqx/log
+   - /etc/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
   environment:
    EMQX_NAME: emqx-2
    EMQX_HOST: 192.168.5.11
@@ -226,6 +347,8 @@ services:
    - /usr/local/docker/emqx/node-3/etc:/opt/emqx/etc
    - /usr/local/docker/emqx/node-3/data:/opt/emqx/data
    - /usr/local/docker/emqx/node-3/log:/opt/emqx/log
+   - /etc/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
   environment:
    EMQX_NAME: emqx-3
    EMQX_HOST: 192.168.5.12
@@ -342,8 +465,22 @@ c199651cf56b   emqx/emqx:latest         "/usr/bin/docker-ent…"   12 seconds ag
 
 ## 访问 dashboard
 
+### 访问 dashboard
+
 可以访问任一链接: ```$HOST:18083/18084/18085```，用户名/密码: ```admin/public```:
 
 ```
 http://192.168.204.107:18083/
 ```
+
+### dashboard - emqx 集群
+
+![emqx 集群](./images/emqx-01.png 'emqx 集群')
+
+### MQTTX 连接配置 (SSL/TLS)
+
+![MQTTX 连接配置 (SSL/TLS)](./images/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
+
+### dashboard - 客户端
+
+![客户端](./images/emqx-03.png '客户端')
