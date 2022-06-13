@@ -60,22 +60,18 @@ nginx                    latest    605c77e624dd   4 months ago   141MB
 ## 创建网络
 
 ```bash
-# docker network create nginx
+# docker network create nginx --subnet 192.168.2.0/24 --gateway=192.168.2.1
 
 # docker network ls
 NETWORK ID     NAME            DRIVER    SCOPE
-b0308476ccc3   bridge          bridge    local
-3724599c2452   host            host      local
-d61017ea048b   mysql           bridge    local
 9528cdf78a57   nginx           bridge    local
-cad7d065639d   none            null      local
 
 # docker network inspect nginx
 [
     {
         "Name": "nginx",
-        "Id": "9528cdf78a579e4b2e809e092b2ce349581587df9f81a1487571150f1f50af7c",
-        "Created": "2022-05-24T23:03:56.56606096-04:00",
+        "Id": "715b74d55cf3f87994c1ab7309bd1ad359869b38bad3ecde0fb6f4026a395459",
+        "Created": "2022-06-13T03:44:53.017717677-04:00",
         "Scope": "local",
         "Driver": "bridge",
         "EnableIPv6": false,
@@ -84,8 +80,8 @@ cad7d065639d   none            null      local
             "Options": {},
             "Config": [
                 {
-                    "Subnet": "172.21.0.0/16",
-                    "Gateway": "172.21.0.1"
+                    "Subnet": "192.168.2.0/24",
+                    "Gateway": "192.168.2.1"
                 }
             ]
         },
@@ -106,64 +102,56 @@ cad7d065639d   none            null      local
 ## 在宿主机上创建 nginx 目录
 
 ```bash
-# mkdir -p /usr/local/docker/nginx/{conf,html,logs}
-
-# ls /usr/local/docker/nginx
-conf  html  logs
-```
-
-## 把容器中的 nginx.conf 复制到宿主机的 nginx/conf 目录
-
-```bash
 # docker run --name nginx --net nginx -p 80:80 -d nginx:latest
 
+# mkdir -p /usr/local/docker/nginx/{conf,html,logs}
+
 # docker cp nginx:/etc/nginx/nginx.conf /usr/local/docker/nginx/conf/
-```
 
-## 配置 docker-compose.yml
+# vim /usr/local/docker/nginx/conf/nginx.conf
 
-```bash
-# vim /usr/local/docker/nginx/docker-compose.yml
-version: '3.9'
+user  nginx;
+worker_processes  auto;
 
-services:
- nginx:
-  image: nginx:latest
-  container_name: nginx
-  restart: always
-  volumes:
-   - /usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
-   - /usr/local/docker/nginx/html:/usr/share/nginx/html
-   - /usr/local/docker/nginx/logs:/var/log/nginx
-  ports:
-   - 80:80
-  networks:
-   - nginx
-networks:
-  nginx:
-    name: nginx
-```
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
 
-## 启动 docker-compose
 
-```bash
-# docker stop nginx
+events {
+    worker_connections  1024;
+}
 
-# docker rm nginx
 
-# docker-compose -f /usr/local/docker/nginx/docker-compose.yml up -d
-[+] Running 1/1
- ⠿ Container nginx  Started                                                                                      1.2s
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
 
-# docker ps
-CONTAINER ID   IMAGE                    COMMAND                  CREATED             STATUS             PORTS                                                                                            NAMES
-93a18489fe0f   nginx:latest             "/docker-entrypoint.…"   23 seconds ago      Up 22 seconds      0.0.0.0:80->80/tcp, :::80->80/tcp                                                                nginx
-```
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
 
-## 访问 nginx
+    access_log  /var/log/nginx/access.log  main;
 
-```bash
-# curl -XGET http://192.168.204.107
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+    
+    server {
+        listen       80; # listen   443 ssl;
+        server_name  www.docker.zy;
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+    }
+}
+
+# vim /usr/local/docker/nginx/html/index.html
 <!DOCTYPE html>
 <html>
 <head>
@@ -187,4 +175,125 @@ Commercial support is available at
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
+
+# chmod -R 777 /usr/local/docker/nginx/{html,logs}
+
+# ls /usr/local/docker/nginx
+conf  html  logs
 ```
+
+## 配置 docker-compose.yml
+
+```bash
+# vim /usr/local/docker/nginx/docker-compose.yml
+version: '3.9'
+
+services:
+ nginx:
+  image: nginx:latest
+  container_name: nginx
+  restart: always
+  volumes:
+   - /usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+   - /usr/local/docker/nginx/html:/usr/share/nginx/html
+   - /usr/local/docker/nginx/logs:/var/log/nginx
+  ports:
+   - 80:80
+  networks:
+    nginx:
+      ipv4_address: 192.168.2.10
+networks:
+  nginx:
+    name: nginx
+```
+
+## 启动 docker-compose
+
+```bash
+# docker stop nginx
+
+# docker rm nginx
+
+# docker-compose -f /usr/local/docker/nginx/docker-compose.yml up -d
+[+] Running 1/1
+ ⠿ Container nginx  Started                                                                                      1.2s
+
+# docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED             STATUS             PORTS                                                                                            NAMES
+93a18489fe0f   nginx:latest             "/docker-entrypoint.…"   23 seconds ago      Up 22 seconds      0.0.0.0:80->80/tcp, :::80->80/tcp                                                                nginx
+```
+
+## 查看网络
+
+```bash
+# docker network inspect nginx
+[
+    {
+        "Name": "nginx",
+        "Id": "715b74d55cf3f87994c1ab7309bd1ad359869b38bad3ecde0fb6f4026a395459",
+        "Created": "2022-06-13T03:44:53.017717677-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.2.0/24",
+                    "Gateway": "192.168.2.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "b1f1794fdc33dbb61a4b3eedd132ee84fff100fa02b1a87b1fd47f0b640f884a": {
+                "Name": "nginx",
+                "EndpointID": "2edda3dea95aded1bc772f4f1d8d45c3ffb9608c4f685693bf2d524543300eaa",
+                "MacAddress": "02:42:c0:a8:02:0a",
+                "IPv4Address": "192.168.2.10/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+## 访问 nginx
+
+可以访问:
+
+1. 在任一物理机访问 ```$HOST:80```:
+   ```bash
+   # curl -XGET http://192.168.204.107
+   ```
+2. 在宿主机访问 ```$Container_IP:80```，即 ```curl -XGET http://192.168.2.10```
+   ```bash
+   # curl -XGET http://192.168.2.10
+   ```
+
+## FAQ
+
+### directory index of "/usr/share/nginx/html/" is forbidden
+
+- 原因
+   1. ```/usr/share/nginx/html``` 下面没有 ```index.html index.htm```
+   2. 默认的 nginx 配置文件的 location 没有指定 root 路径
+
+- 解决办法
+   1. 在宿主机挂载的 html 目录下创建 ```index.html index.htm```
+   2. 在 nginx 配置文件里指定 root 路径:
+      ```conf
+      location / {
+        root   html;
+        index  index.html index.htm;
+      }
+      ```
