@@ -61,21 +61,24 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 # vim /usr/local/docker/redis/create-docker-compose.sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
-cd /usr/local/docker/redis
-echo "version: '3.9'" >> docker-compose.yml
-echo >> docker-compose.yml
-echo "services:" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/redis/docker-compose.yml
+version: '3.9'
+
+services:
+EOF
 for index in $(seq 1 6);
 do
-echo " redis-"${index}":" >> docker-compose.yml
-echo "  image: redis:latest" >> docker-compose.yml
-echo "  container_name: redis-"${index} >> docker-compose.yml
-echo "  restart: always" >> docker-compose.yml
-echo "  command: redis-server /etc/redis/redis.conf" >> docker-compose.yml
-echo "  volumes:" >> docker-compose.yml
-echo "   - /usr/local/docker/redis/node-"${index}"/data:/data" >> docker-compose.yml
-echo "   - /usr/local/docker/redis/node-"${index}"/conf/redis.conf:/etc/redis/redis.conf" >> docker-compose.yml
-echo "  network_mode: host" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/redis/docker-compose.yml
+ redis-${index}:
+  image: redis:latest
+  container_name: redis-${index}
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-${index}/data:/data
+   - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
+  network_mode: host
+EOF
 done
 
 # chmod +x /usr/local/docker/redis/create-docker-compose.sh
