@@ -33,11 +33,6 @@ redis                                           latest    7614ae9453d1   4 month
 
 # docker network ls
 NETWORK ID     NAME             DRIVER    SCOPE
-225f82e455f7   back-net         bridge    local
-69007f1e6fb0   bridge           bridge    local
-95b385dfdc12   docker_default   bridge    local
-fbed1fc9e76d   host             host      local
-d8ac74ade811   none             null      local
 f79b0ef50b9c   redis            bridge    local
 
 # docker network inspect redis
@@ -113,30 +108,35 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 # vim /usr/local/docker/redis/create-docker-compose.sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
-cd /usr/local/docker/redis
-echo "version: '3.9'" >> docker-compose.yml
-echo >> docker-compose.yml
-echo "services:" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/redis/docker-compose.yml
+version: '3.9'
+
+services:
+EOF
 for index in $(seq 1 6);
 do
-echo " redis-"${index}":" >> docker-compose.yml
-echo "  image: redis:latest" >> docker-compose.yml
-echo "  container_name: redis-"${index} >> docker-compose.yml
-echo "  restart: always" >> docker-compose.yml
-echo "  command: redis-server /etc/redis/redis.conf" >> docker-compose.yml
-echo "  volumes:" >> docker-compose.yml
-echo "   - /usr/local/docker/redis/node-"${index}"/data:/data" >> docker-compose.yml
-echo "   - /usr/local/docker/redis/node-"${index}"/conf/redis.conf:/etc/redis/redis.conf" >> docker-compose.yml
-echo "  ports:" >> docker-compose.yml
-echo "   - 637"${index}":6379" >> docker-compose.yml
-echo "   - 1637"${index}":16379" >> docker-compose.yml
-echo "  networks:" >> docker-compose.yml
-echo "    redis:" >> docker-compose.yml
-echo "      ipv4_address: 192.168.0.1"${index} >> docker-compose.yml
+cat << EOF >> /usr/local/docker/redis/docker-compose.yml
+ redis-${index}:
+  image: redis:latest
+  container_name: redis-${index}
+  restart: always
+  command: redis-server /etc/redis/redis.conf
+  volumes:
+   - /usr/local/docker/redis/node-${index}/data:/data
+   - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
+  ports:
+   - 637${index}:6379
+   - 1637${index}:16379
+  networks:
+    redis:
+      ipv4_address: 192.168.0.1${index}
+EOF
 done
-echo "networks:" >> docker-compose.yml
-echo "    redis:" >> docker-compose.yml
-echo "      name: redis" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/redis/docker-compose.yml
+networks:
+    redis:
+      name: redis
+EOF
 
 # chmod +x /usr/local/docker/redis/create-docker-compose.sh
 
