@@ -475,12 +475,12 @@ http://192.168.204.107:18083/
 
 ### dashboard - emqx 集群
 
-![emqx 集群](./images/emqx-01.png 'emqx 集群')
+![emqx 集群](./images/emqx/emqx-01.png 'emqx 集群')
 
 ### MQTTX 连接配置 (SSL/TLS)
 
-![MQTTX 连接配置 (SSL/TLS)](./images/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
+![MQTTX 连接配置 (SSL/TLS)](./images/emqx/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
 
 ### dashboard - 客户端
 
-![客户端](./images/emqx-03.png '客户端')
+![客户端](./images/emqx/emqx-03.png '客户端')
