@@ -87,6 +87,9 @@ cad7d065639d   none      null      local
 # > /usr/local/docker/mysql/create-node.sh
 
 # vim /usr/local/docker/mysql/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/mysql/{master,slave}
 cd /usr/local/docker/mysql/master
@@ -109,7 +112,9 @@ cat << EOF >> my.cnf
 server-id=2
 log-bin=mysql-bin
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/mysql/create-node.sh
 
 # /usr/local/docker/mysql/create-node.sh
@@ -124,6 +129,9 @@ create-node.sh  master  slave
 # > /usr/local/docker/mysql/docker-compose.yml
 
 # vim /usr/local/docker/mysql/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
