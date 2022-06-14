@@ -40,6 +40,9 @@ mysql         latest    3218b38490ce   5 months ago   516MB
 # mkdir -p /usr/local/docker/mysql
 
 # vim /usr/local/docker/mysql/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/mysql/{master,slave}
 cd /usr/local/docker/mysql/master
@@ -64,7 +67,9 @@ port=3307
 server-id=2
 log-bin=mysql-bin
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/mysql/create-node.sh
 
 # /usr/local/docker/mysql/create-node.sh
@@ -77,6 +82,9 @@ create-node.sh  master  slave
 
 ```bash
 # vim /usr/local/docker/mysql/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
