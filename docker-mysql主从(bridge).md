@@ -87,6 +87,7 @@ cad7d065639d   none      null      local
 # > /usr/local/docker/mysql/create-node.sh
 
 # vim /usr/local/docker/mysql/create-node.sh
+#!/bin/sh
 mkdir -p /usr/local/docker/mysql/{master,slave}
 cd /usr/local/docker/mysql/master
 mkdir conf data mysql-files
