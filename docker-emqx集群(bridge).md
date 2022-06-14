@@ -247,6 +247,7 @@ acl.conf  certs  emqx.conf  lwm2m_xml  plugins  psk.txt  ssl_dist.conf  vm.args
 # > /usr/local/docker/emqx/create-docker-compose.sh
 
 # vim /usr/local/docker/emqx/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/emqx/docker-compose.yml
 cat << EOF >> /usr/local/docker/emqx/docker-compose.yml
 version: '3.9'
