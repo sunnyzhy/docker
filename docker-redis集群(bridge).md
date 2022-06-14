@@ -76,6 +76,7 @@ f79b0ef50b9c   redis            bridge    local
 # > /usr/local/docker/redis/create-node.sh
 
 # vim /usr/local/docker/redis/create-node.sh
+#!/bin/sh
 for index in $(seq 1 6);
 do
 mkdir -p /usr/local/docker/redis/node-${index}/conf
@@ -106,6 +107,7 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 # > /usr/local/docker/redis/create-docker-compose.sh
 
 # vim /usr/local/docker/redis/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
 cat << EOF >> /usr/local/docker/redis/docker-compose.yml
