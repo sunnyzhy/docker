@@ -89,6 +89,9 @@ b744e71bc3da   emqx                    bridge    local
 # > /usr/local/docker/emqx/create-node.sh
 
 # vim /usr/local/docker/emqx/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/emqx/{node-1,node-2,node-3}
 
@@ -164,6 +167,9 @@ chmod -R 777 /usr/local/docker/emqx/node-3/{data,log}
 5. 生成服务端证书请求
     ```bash
     # vim openssl.cnf
+    ```
+    
+    ```cnf
     [req]
     default_bits  = 2048
     distinguished_name = req_distinguished_name
@@ -183,7 +189,9 @@ chmod -R 777 /usr/local/docker/emqx/node-3/{data,log}
     [alt_names]
     IP.1 = 192.168.204.107
     DNS.1 = 8.8.8.8
-
+    ```
+    
+    ```bash
     # openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csr
     ```
     ***IP.1 和 DNS.1 根据实际情况填写。***
@@ -220,7 +228,9 @@ chmod -R 777 /usr/local/docker/emqx/node-3/{data,log}
 
 ```bash
 # vim /usr/local/docker/emqx/create-node.sh
+```
 
+```sh
 ##--------------------------------------------------------------------
 ## 配置双向认证
 ## 1. 拷贝证书到挂载的宿主机目录
@@ -259,6 +269,9 @@ acl.conf  certs  emqx.conf  lwm2m_xml  plugins  psk.txt  ssl_dist.conf  vm.args
 # > /usr/local/docker/emqx/create-docker-compose.sh
 
 # vim /usr/local/docker/emqx/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/emqx/docker-compose.yml
 cat << EOF >> /usr/local/docker/emqx/docker-compose.yml
@@ -297,7 +310,9 @@ networks:
     emqx:
       name: emqx
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/emqx/create-docker-compose.sh
 
 # /usr/local/docker/emqx/create-docker-compose.sh
@@ -522,6 +537,9 @@ haproxy                          latest    575a5788d81a   5 months ago    101MB
 # > /usr/local/docker/haproxy/create-node.sh
 
 # vim /usr/local/docker/haproxy/create-node.sh
+```
+
+```sh
 #!/bin/sh
 for index in $(seq 1 2);
 do
@@ -617,7 +635,9 @@ listen  proxy-emqx-monitor
         option  tcpka
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/haproxy/create-node.sh
 
 # /usr/local/docker/haproxy/create-node.sh
@@ -632,6 +652,9 @@ create-node.sh  node-1  node-2
 # > /usr/local/docker/haproxy/create-docker-compose.sh
 
 # vim /usr/local/docker/haproxy/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/haproxy/docker-compose.yml
 cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
@@ -663,7 +686,9 @@ networks:
     emqx:
       name: emqx
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/haproxy/create-docker-compose.sh
 
 # /usr/local/docker/haproxy/create-docker-compose.sh
@@ -779,6 +804,9 @@ osixia/keepalived                latest    d04966a100a7   2 years ago     72.9MB
 # > /usr/local/docker/keepalived/create-node.sh
 
 # vim /usr/local/docker/keepalived/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/keepalived/master/config
 > /usr/local/docker/keepalived/master/config/keepalived.conf
@@ -979,7 +1007,9 @@ fi
 EOF
 
 chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
+```
 
+```bash
 # chmod +x /usr/local/docker/keepalived/create-node.sh
 
 # /usr/local/docker/keepalived/create-node.sh
@@ -1006,6 +1036,9 @@ fi
 # > /usr/local/docker/keepalived/docker-compose.yml
 
 # vim /usr/local/docker/keepalived/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
