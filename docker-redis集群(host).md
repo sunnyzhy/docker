@@ -32,6 +32,7 @@ redis                                           latest    7614ae9453d1   4 month
 # mkdir -p /usr/local/docker/redis
 
 # vim /usr/local/docker/redis/create-node.sh
+#!/bin/sh
 for index in $(seq 1 6);
 do
 mkdir -p /usr/local/docker/redis/node-${index}/conf
@@ -59,6 +60,7 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 
 ```bash
 # vim /usr/local/docker/redis/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
 cat << EOF >> /usr/local/docker/redis/docker-compose.yml
