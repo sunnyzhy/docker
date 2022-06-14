@@ -125,6 +125,7 @@ pxc 不允许把数据保存到容器之外，也就是说 pxc 无法直接映�
 # > /usr/local/docker/pxc/create-docker-compose.sh
 
 # vim /usr/local/docker/pxc/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/pxc/docker-compose-first.yml
 cat << EOF >> /usr/local/docker/pxc/docker-compose-first.yml
 version: '3.9'
@@ -155,38 +156,45 @@ volumes:
 EOF
 
 > /usr/local/docker/pxc/docker-compose-second.yml
-cd /usr/local/docker/pxc
-echo "version: '3.9'" >> docker-compose-second.yml
-echo >> docker-compose-second.yml
-echo "services:" >> docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+version: '3.9'
+
+services:
+EOF
 for index in $(seq 2 3);
 do
-echo " pxc-${index}:" >> docker-compose-second.yml
-echo "  image: percona/percona-xtradb-cluster:5.7" >> docker-compose-second.yml
-echo "  container_name: pxc-${index}" >> docker-compose-second.yml
-echo "  restart: always" >> docker-compose-second.yml
-echo "  volumes:" >> docker-compose-second.yml
-echo "   - pxc_${index}:/var/lib/mysql" >> docker-compose-second.yml
-echo "  environment:" >> docker-compose-second.yml
-echo "   MYSQL_ROOT_PASSWORD: root" >> docker-compose-second.yml
-echo "   XTRABACKUP_PASSWORD: root" >> docker-compose-second.yml
-echo "   CLUSTER_NAME: pxc" >> docker-compose-second.yml
-echo "   CLUSTER_JOIN: pxc-1" >> docker-compose-second.yml
-echo "  ports:" >> docker-compose-second.yml
-echo "   - 330$(expr ${index} + 5):3306" >> docker-compose-second.yml
-echo "  networks:" >> docker-compose-second.yml
-echo "   mysql:" >> docker-compose-second.yml
-echo "    ipv4_address: 192.168.1.2$(expr ${index} - 1)" >> docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+ pxc-${index}:
+  image: percona/percona-xtradb-cluster:5.7
+  container_name: pxc-${index}
+  restart: always
+  volumes:
+   - pxc_${index}:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+   XTRABACKUP_PASSWORD: root
+   CLUSTER_NAME: pxc
+   CLUSTER_JOIN: pxc-1
+  ports:
+   - 330$(expr ${index} + 5):3306
+  networks:
+   mysql:
+    ipv4_address: 192.168.1.2$(expr ${index} - 1)
+EOF
 done
-echo "networks:" >> docker-compose-second.yml
-echo "  mysql:" >> docker-compose-second.yml
-echo "   name: mysql" >> docker-compose-second.yml
-echo "volumes:" >> docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+networks:
+  mysql:
+   name: mysql
+volumes:
+EOF
 for index in $(seq 2 3);
 do
-echo "  pxc_${index}:" >> docker-compose-second.yml
-echo "   name: pxc_${index}" >> docker-compose-second.yml
-echo "   external: true" >> docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+  pxc_${index}:
+   name: pxc_${index}
+   external: true
+EOF
 done
 
 # chmod +x /usr/local/docker/pxc/create-docker-compose.sh
@@ -194,7 +202,7 @@ done
 # /usr/local/docker/pxc/create-docker-compose.sh
 
 # ls /usr/local/docker/pxc
-create-docker-compose.sh  docker-compose.yml
+create-docker-compose.sh  docker-compose-first.yml  docker-compose-second.yml
 ```
 
 ***完整的 docker-compose.yml:***
@@ -282,13 +290,13 @@ create-docker-compose.sh  docker-compose.yml
 
 1. 先启动 pxc-1
     ```bash
-    # docker-compose -f /usr/local/docker/pxc/docker-compose-first.yml up -d
+    # docker-compose -p pxc-f -f /usr/local/docker/pxc/docker-compose-first.yml up -d
     [+] Running 1/1
      ⠿ Container pxc-1  Started
     ```
 2. 再启动 pxc-2/3
     ```bash
-    # docker-compose -f /usr/local/docker/pxc/docker-compose-second.yml up -d
+    # docker-compose -p pxc-s -f /usr/local/docker/pxc/docker-compose-second.yml up -d
     [+] Running 2/2
      ⠿ Container pxc-2  Started                                                                                      2.0s
      ⠿ Container pxc-3  Started                                                                                      1.9s
@@ -476,6 +484,7 @@ haproxy                          latest    575a5788d81a   5 months ago    101MB
 # > /usr/local/docker/haproxy/create-node.sh
 
 # vim /usr/local/docker/haproxy/create-node.sh
+#!/bin/sh
 for index in $(seq 1 2);
 do
 mkdir -p /usr/local/docker/haproxy/node-${index}/config
@@ -553,29 +562,35 @@ create-node.sh  node-1  node-2
 # > /usr/local/docker/haproxy/create-docker-compose.sh
 
 # vim /usr/local/docker/haproxy/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/haproxy/docker-compose.yml
-cd /usr/local/docker/haproxy
-echo "version: '3.9'" >> docker-compose.yml
-echo >> docker-compose.yml
-echo "services:" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+version: '3.9'
+
+services:
+EOF
 for index in $(seq 1 2);
 do
-echo " haproxy-${index}:" >> docker-compose.yml
-echo "  image: haproxy:latest" >> docker-compose.yml
-echo "  container_name: haproxy-${index}" >> docker-compose.yml
-echo "  restart: always" >> docker-compose.yml
-echo "  volumes:" >> docker-compose.yml
-echo "   - /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg" >> docker-compose.yml
-echo "  ports:" >> docker-compose.yml
-echo "   - 3306$(expr ${index} - 1):3306" >> docker-compose.yml
-echo "   - 505$(expr ${index} - 1):18081" >> docker-compose.yml
-echo "  networks:" >> docker-compose.yml
-echo "    mysql:" >> docker-compose.yml
-echo "      ipv4_address: 192.168.1.3$(expr ${index} - 1)" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+ haproxy-${index}:
+  image: haproxy:latest
+  container_name: haproxy-${index}
+  restart: always
+  volumes:
+   - /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  ports:
+   - 3306$(expr ${index} - 1):3306
+   - 505$(expr ${index} - 1):18081
+  networks:
+    mysql:
+      ipv4_address: 192.168.1.3$(expr ${index} - 1)
+EOF
 done
-echo "networks:" >> docker-compose.yml
-echo "    mysql:" >> docker-compose.yml
-echo "      name: mysql" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+networks:
+    mysql:
+      name: mysql
+EOF
 
 # chmod +x /usr/local/docker/haproxy/create-docker-compose.sh
 
@@ -692,6 +707,7 @@ osixia/keepalived                latest    d04966a100a7   2 years ago     72.9MB
 # > /usr/local/docker/keepalived/create-node.sh
 
 # vim /usr/local/docker/keepalived/create-node.sh
+#!/bin/sh
 mkdir -p /usr/local/docker/keepalived/master/config
 > /usr/local/docker/keepalived/master/config/keepalived.conf
 cat << EOF >> /usr/local/docker/keepalived/master/config/keepalived.conf
@@ -746,13 +762,15 @@ virtual_server 192.168.204.100 18081 {
 EOF
 
 > /usr/local/docker/keepalived/master/check-haproxy.sh
-echo "#!/bin/bash" >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo 'count=`netstat -apn | grep 33060 | wc -l`' >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo 'if [ $count -gt 0 ]; then' >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo "    exit 0" >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo "else" >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo "    exit 1" >> /usr/local/docker/keepalived/master/check-haproxy.sh
-echo "fi" >> /usr/local/docker/keepalived/master/check-haproxy.sh
+cat << EOF >> /usr/local/docker/keepalived/master/check-haproxy.sh
+#!/bin/bash
+count=\`netstat -apn | grep 33060 | wc -l\`
+if [ \$count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+EOF
 
 chmod +x /usr/local/docker/keepalived/master/check-haproxy.sh
 
@@ -810,13 +828,15 @@ virtual_server 192.168.204.100 18081 {
 EOF
 
 > /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo "#!/bin/bash" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo 'count=`netstat -apn | grep 33061 | wc -l`' >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo 'if [ $count -gt 0 ]; then' >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo "    exit 0" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo "else" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo "    exit 1" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
-echo "fi" >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+cat << EOF >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+#!/bin/bash
+count=\`netstat -apn | grep 33061 | wc -l\`
+if [ \$count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+EOF
 
 chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
 
