@@ -83,9 +83,7 @@ cad7d065639d   none            null      local
 # mkdir -p /usr/local/docker/elasticsearch
 
 # > /usr/local/docker/elasticsearch/create-node.sh
-```
 
-```bash
 # vim /usr/local/docker/elasticsearch/create-node.sh
 ```
 
@@ -159,9 +157,7 @@ done
 
 # ls /usr/local/docker/elasticsearch
 create-node.sh  node-1  node-2  node-3
-```
 
-```bash
 # cat /usr/local/docker/elasticsearch/node-1/config/elasticsearch.yml
 ```
 
@@ -243,7 +239,9 @@ networks:
     elasticsearch:
       name: elasticsearch
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/elasticsearch/create-docker-compose.sh
 
 # /usr/local/docker/elasticsearch/create-docker-compose.sh
