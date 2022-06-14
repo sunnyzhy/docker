@@ -85,20 +85,22 @@ cad7d065639d   none            null      local
 # > /usr/local/docker/elasticsearch/create-node.sh
 
 # vim /usr/local/docker/elasticsearch/create-node.sh
+#!/bin/sh
 num=0
 for index in $(seq 1 3);
 do
 mkdir -p /usr/local/docker/elasticsearch/node-${index}
-> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
 docker cp elasticsearch:/usr/share/elasticsearch/config/ /usr/local/docker/elasticsearch/node-${index}/
 docker cp elasticsearch:/usr/share/elasticsearch/data/ /usr/local/docker/elasticsearch/node-${index}/
 docker cp elasticsearch:/usr/share/elasticsearch/logs/ /usr/local/docker/elasticsearch/node-${index}/
-echo "http.cors.enabled: true" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-echo "http.cors.allow-origin: \"*\"" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-echo "node.name: elasticsearch-"${index} >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-echo "discovery.seed_hosts: [\"192.168.3.11\", \"192.168.3.12\", \"192.168.3.13\"]" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-echo "cluster.initial_master_nodes: [\"elasticsearch-1\"]" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-done
+> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
+cat << EOF >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
+cluster.name: "docker-cluster"
+network.host: 0.0.0.0
+http.cors.enabled: true
+http.cors.allow-origin: "*"node.name: elasticsearch-${index}
+discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]cluster.initial_master_nodes: ["elasticsearch-1"]
+EOFdone
 
 # chmod +x /usr/local/docker/elasticsearch/create-node.sh
 
@@ -110,8 +112,6 @@ create-node.sh  node-1  node-2  node-3
 # cat /usr/local/docker/elasticsearch/node-1/config/elasticsearch.yml
 cluster.name: "docker-cluster"
 network.host: 0.0.0.0
-node.master: true
-node.data: false
 http.cors.enabled: true
 http.cors.allow-origin: "*"
 node.name: elasticsearch-1
@@ -125,32 +125,37 @@ cluster.initial_master_nodes: ["elasticsearch-1"]
 # > /usr/local/docker/elasticsearch/create-docker-compose.sh
 
 # vim /usr/local/docker/elasticsearch/create-docker-compose.sh
+#!/bin/sh
 > /usr/local/docker/elasticsearch/docker-compose.yml
-touch /usr/local/docker/elasticsearch/docker-compose.yml
-cd /usr/local/docker/elasticsearch
-echo "version: '3.9'" >> docker-compose.yml
-echo >> docker-compose.yml
-echo "services:" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
+version: '3.9'
+
+services:
+EOF
 for index in $(seq 1 3);
 do
-echo " elasticsearch-"${index}":" >> docker-compose.yml
-echo "  image: elasticsearch:7.12.1" >> docker-compose.yml
-echo "  container_name: elasticsearch-"${index} >> docker-compose.yml
-echo "  restart: always" >> docker-compose.yml
-echo "  volumes:" >> docker-compose.yml
-echo "   - /usr/local/docker/elasticsearch/node-${index}/config:/usr/share/elasticsearch/config" >> docker-compose.yml
-echo "   - /usr/local/docker/elasticsearch/node-${index}/data:/usr/share/elasticsearch/data" >> docker-compose.yml
-echo "   - /usr/local/docker/elasticsearch/node-${index}/logs:/usr/share/elasticsearch/logs" >> docker-compose.yml
-echo "  ports:" >> docker-compose.yml
-echo "   - 920"$(expr ${index} - 1)":9200" >> docker-compose.yml
-echo "   - 930"$(expr ${index} - 1)":9300" >> docker-compose.yml
-echo "  networks:" >> docker-compose.yml
-echo "    elasticsearch:" >> docker-compose.yml
-echo "      ipv4_address: 192.168.3.1"${index} >> docker-compose.yml
+cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
+ elasticsearch-${index}:
+  image: elasticsearch:7.12.1
+  container_name: elasticsearch-${index}
+  restart: always
+  volumes:
+   - /usr/local/docker/elasticsearch/node-${index}/config:/usr/share/elasticsearch/config
+   - /usr/local/docker/elasticsearch/node-${index}/data:/usr/share/elasticsearch/data
+   - /usr/local/docker/elasticsearch/node-${index}/logs:/usr/share/elasticsearch/logs
+  ports:
+   - 920$(expr ${index} - 1):9200
+   - 930$(expr ${index} - 1):9300
+  networks:
+    elasticsearch:
+      ipv4_address: 192.168.3.1${index}
+EOF
 done
-echo "networks:" >> docker-compose.yml
-echo "    elasticsearch:" >> docker-compose.yml
-echo "      name: elasticsearch" >> docker-compose.yml
+cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
+networks:
+    elasticsearch:
+      name: elasticsearch
+EOF
 
 # chmod +x /usr/local/docker/elasticsearch/create-docker-compose.sh
 
