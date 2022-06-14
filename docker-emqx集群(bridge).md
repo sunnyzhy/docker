@@ -6,12 +6,24 @@
 
 - 网络配置: 驱动类型为 bridge，名称为 emqx ，子网掩码为 ```192.168.5.0/24```，网关为 ```192.168.5.1```
 
-- 容器与宿主机映射
+- emqx 集群
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
     |emqx-1|192.168.5.10|18083:18083<br />1883:1883<br />8883:8883|192.168.204.107|/usr/local/docker/emqx/node-1/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-1/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-1/log:/opt/emqx/log|
     |emqx-2|192.168.5.11|18084:18083<br />1884:1883<br />8884:8883|192.168.204.107|/usr/local/docker/emqx/node-2/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-2/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-2/log:/opt/emqx/log|
-    |emqx-3|192.168.5.20|18085:18083<br />1885:1883<br />8885:8883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
+    |emqx-3|192.168.5.12|18085:18083<br />1885:1883<br />8885:8883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
+
+- Haproxy 双机热备
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|
+    |haproxy-1|192.168.5.20|1883:1883<br />8883:8883<br />18083:18083<br />5050:18081|192.168.204.107|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy-2|192.168.5.21|1884:1883<br />8884:8883<br />18084:18083<br />5051:18081|192.168.204.107|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+
+- Keepalived 双机热备
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|
+    |keepalived-master|-|-|192.168.204.107|/usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
+    |keepalived-backup|-|-|192.168.204.107|/usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
 
 ## 拉取 emqx 镜像
 
@@ -468,7 +480,7 @@ c199651cf56b   emqx/emqx:latest         "/usr/bin/docker-ent…"   12 seconds ag
 
 ### 访问 dashboard
 
-可以访问任一链接: ```$HOST:18083/18084/18085```，用户名/密码: ```admin/public```:
+可以访问任一连接: ```$HOST:18083/18084/18085```，用户名/密码: ```admin/public```:
 
 ```
 http://192.168.204.107:18083/
@@ -480,8 +492,587 @@ http://192.168.204.107:18083/
 
 ### MQTTX 连接配置 (SSL/TLS)
 
+连接: ```$HOST:8883/8884/8885```，用户名/密码: ```admin/admin```:
+
 ![MQTTX 连接配置 (SSL/TLS)](./images/emqx/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
 
 ### dashboard - 连接的客户端
 
 ![连接的客户端](./images/emqx/emqx-03.png '连接的客户端')
+
+## 安装 Haproxy
+
+配置 emqx 负载均衡，此示例以 Haproxy 双机热备为例。
+
+### 拉取 haproxy 镜像
+
+```bash
+# docker pull haproxy:latest
+
+# docker images
+REPOSITORY                       TAG       IMAGE ID       CREATED         SIZE
+haproxy                          latest    575a5788d81a   5 months ago    101MB
+```
+
+### 在宿主机上创建 haproxy 目录
+
+```bash
+# mkdir -p /usr/local/docker/haproxy
+
+# > /usr/local/docker/haproxy/create-node.sh
+
+# vim /usr/local/docker/haproxy/create-node.sh
+#!/bin/sh
+for index in $(seq 1 2);
+do
+mkdir -p /usr/local/docker/haproxy/node-${index}/config
+> /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg
+cat << EOF >> /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg
+global
+	#日志文件，使用rsyslog服务中local5日志设备（/var/log/local5），等级info
+	log 127.0.0.1 local5 info
+	#守护进程运行
+	daemon
+
+defaults
+	log	global
+	mode	http
+	#日志格式
+	option	httplog
+	#日志中不记录负载均衡的心跳检测记录
+	option	dontlognull
+        #连接超时（毫秒）
+	timeout connect 5000
+        #客户端超时（毫秒）
+	timeout client  50000
+	#服务器超时（毫秒）
+        timeout server  50000
+
+#监控界面
+listen  admin_stats
+	#监控界面的访问的IP和端口
+	bind  0.0.0.0:18081
+	#访问协议
+        mode        http
+	#URI相对地址
+        stats uri   /monitor
+	#统计报告格式
+        stats realm     Global\ statistics
+	#登陆帐户信息
+        stats auth  admin:admin
+#负载均衡
+listen  proxy-emqx-tcp
+	#访问的IP和端口
+	bind  0.0.0.0:1883
+        #网络协议
+	mode  tcp
+	#负载均衡算法（轮询算法）
+	#轮询算法：roundrobin
+	#权重算法：static-rr
+	#最少连接算法：leastconn
+	#请求源IP算法：source
+        balance  roundrobin
+        #日志格式
+        option  tcplog
+        server  emqx-tcp-1 192.168.5.10:1883 check weight 1 maxconn 2000
+        server  emqx-tcp-2 192.168.5.11:1883 check weight 1 maxconn 2000
+        server  emqx-tcp-3 192.168.5.12:1883 check weight 1 maxconn 2000
+        #使用keepalive检测死链
+        option  tcpka
+listen  proxy-emqx-ssl
+        #访问的IP和端口
+        bind  0.0.0.0:8883
+        #网络协议
+        mode  tcp
+        #负载均衡算法（轮询算法）
+        #轮询算法：roundrobin
+        #权重算法：static-rr
+        #最少连接算法：leastconn
+        #请求源IP算法：source
+        balance  roundrobin
+        #日志格式
+        option  tcplog
+        server  emqx-ssl-1 192.168.5.10:8883 check weight 1 maxconn 2000
+        server  emqx-ssl-2 192.168.5.11:8883 check weight 1 maxconn 2000
+        server  emqx-ssl-3 192.168.5.12:8883 check weight 1 maxconn 2000
+        #使用keepalive检测死链
+        option  tcpka
+listen  proxy-emqx-monitor
+        #访问的IP和端口
+        bind  0.0.0.0:18083
+        #网络协议
+        mode  tcp
+        #负载均衡算法（轮询算法）
+        #轮询算法：roundrobin
+        #权重算法：static-rr
+        #最少连接算法：leastconn
+        #请求源IP算法：source
+        balance  roundrobin
+        #日志格式
+        option  tcplog
+        server  emqx-monitor-1 192.168.5.10:18083 check weight 1 maxconn 2000
+        server  emqx-monitor-2 192.168.5.11:18083 check weight 1 maxconn 2000
+        server  emqx-monitor-3 192.168.5.12:18083 check weight 1 maxconn 2000
+        #使用keepalive检测死链
+        option  tcpka
+EOF
+done
+
+# chmod +x /usr/local/docker/haproxy/create-node.sh
+
+# /usr/local/docker/haproxy/create-node.sh
+
+# ls /usr/local/docker/haproxy/
+create-node.sh  node-1  node-2
+```
+
+### 配置 docker-compose.yml
+
+```bash
+# > /usr/local/docker/haproxy/create-docker-compose.sh
+
+# vim /usr/local/docker/haproxy/create-docker-compose.sh
+#!/bin/sh
+> /usr/local/docker/haproxy/docker-compose.yml
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+version: '3.9'
+
+services:
+EOF
+for index in $(seq 1 2);
+do
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+ haproxy-${index}:
+  image: haproxy:latest
+  container_name: haproxy-${index}
+  restart: always
+  volumes:
+   - /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  ports:
+   - $(expr 1883 - ${index}):1883
+   - $(expr 8883 - ${index}):8883
+   - $(expr 18083 - ${index}):18083
+   - 505$(expr ${index} - 1):18081
+  networks:
+    emqx:
+      ipv4_address: 192.168.5.2$(expr ${index} - 1)
+EOF
+done
+cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
+networks:
+    emqx:
+      name: emqx
+EOF
+
+# chmod +x /usr/local/docker/haproxy/create-docker-compose.sh
+
+# /usr/local/docker/haproxy/create-docker-compose.sh
+
+# ls /usr/local/docker/haproxy
+create-docker-compose.sh  create-node.sh  docker-compose.yml  node-1  node-2
+```
+
+***完整的 docker-compose.yml:***
+
+```yml
+version: '3.9'
+
+services:
+ haproxy-1:
+  image: haproxy:latest
+  container_name: haproxy-1
+  restart: always
+  volumes:
+   - /usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  ports:
+   - 1882:1883
+   - 8882:8883
+   - 18082:18083
+   - 5050:18081
+  networks:
+    emqx:
+      ipv4_address: 192.168.5.20
+ haproxy-2:
+  image: haproxy:latest
+  container_name: haproxy-2
+  restart: always
+  volumes:
+   - /usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  ports:
+   - 1881:1883
+   - 8881:8883
+   - 18081:18083
+   - 5051:18081
+  networks:
+    emqx:
+      ipv4_address: 192.168.5.21
+networks:
+    emqx:
+      name: emqx
+```
+
+### 启动 docker-compose
+
+```bash
+# docker-compose -f /usr/local/docker/haproxy/docker-compose.yml up -d
+[+] Running 2/2
+ ⠿ Container haproxy-2  Started                                                                                  2.6s
+ ⠿ Container haproxy-1  Started                                                                                  2.5s
+
+# docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                                                                                                                                                                                                             NAMES
+6b862b2068da   haproxy:latest           "docker-entrypoint.s…"   13 seconds ago   Up 10 seconds   0.0.0.0:1882->1883/tcp, :::1882->1883/tcp, 0.0.0.0:8882->8883/tcp, :::8882->8883/tcp, 0.0.0.0:5050->18081/tcp, :::5050->18081/tcp, 0.0.0.0:18082->18083/tcp, :::18082->18083/tcp                                  haproxy-1
+91a364b9627b   haproxy:latest           "docker-entrypoint.s…"   13 seconds ago   Up 10 seconds   0.0.0.0:1881->1883/tcp, :::1881->1883/tcp, 0.0.0.0:8881->8883/tcp, :::8881->8883/tcp, 0.0.0.0:5051->18081/tcp, :::5051->18081/tcp, 0.0.0.0:18081->18083/tcp, :::18081->18083/tcp                                  haproxy-2
+```
+
+### MQTTX 连接配置 (SSL/TLS)
+
+连接: ```$HOST:8882/8881```，用户名/密码: ```admin/admin```，证书配置同上。
+
+### 访问 haproxy 监控界面
+
+连接 ```HOST:5050/5051``` :
+
+```bash
+# curl -XGET http://192.168.204.107:5050/monitor
+```
+
+## 安装 Keepalived
+
+### 安装 ipvsadm
+
+```bash
+# yum install -y ipvsadm
+
+# ipvsadm
+```
+
+### 拉取 keepalived 镜像
+
+```bash
+# docker pull osixia/keepalived
+
+# docker images
+REPOSITORY                       TAG       IMAGE ID       CREATED         SIZE
+osixia/keepalived                latest    d04966a100a7   2 years ago     72.9MB
+```
+
+### 在宿主机上创建 keepalived 目录
+
+查看宿主机的网卡，以绑定 VIP 的网卡:
+
+```bash
+# ip addr
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 00:0c:29:a1:ab:0a brd ff:ff:ff:ff:ff:ff
+    inet 192.168.204.107/24 brd 192.168.204.255 scope global noprefixroute ens33
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ed8d:b0e:23a3:cee4/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+```
+
+创建 keepalived 目录:
+
+```bash
+# mkdir -p /usr/local/docker/keepalived
+
+# > /usr/local/docker/keepalived/create-node.sh
+
+# vim /usr/local/docker/keepalived/create-node.sh
+#!/bin/sh
+mkdir -p /usr/local/docker/keepalived/master/config
+> /usr/local/docker/keepalived/master/config/keepalived.conf
+cat << EOF >> /usr/local/docker/keepalived/master/config/keepalived.conf
+vrrp_instance VI_1 {
+    state MASTER
+    interface ens33
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.204.100
+    }
+}
+
+virtual_server 192.168.204.100 1883 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.20 1883 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 1883
+       }
+    }
+}
+
+virtual_server 192.168.204.100 8883 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.20 8883 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 8883
+       }
+    }
+}
+
+virtual_server 192.168.204.100 18083 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.20 18083 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 18083
+       }
+    }
+}
+
+virtual_server 192.168.204.100 18081 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.20 18081 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 18081
+       }
+    }
+}
+EOF
+
+> /usr/local/docker/keepalived/master/check-haproxy.sh
+cat << EOF >> /usr/local/docker/keepalived/master/check-haproxy.sh
+#!/bin/bash
+count=\`netstat -apn | grep 1882 | wc -l\`
+if [ \$count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+EOF
+
+chmod +x /usr/local/docker/keepalived/master/check-haproxy.sh
+
+mkdir -p /usr/local/docker/keepalived/backup/config
+> /usr/local/docker/keepalived/backup/config/keepalived.conf
+cat << EOF >> /usr/local/docker/keepalived/backup/config/keepalived.conf
+vrrp_instance VI_1 {
+    state BACKUP
+    interface ens33
+    virtual_router_id 51
+    priority 99
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.204.100
+    }
+}
+
+virtual_server 192.168.204.100 1883 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.21 1883 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 1883
+       }
+    }
+}
+
+virtual_server 192.168.204.100 8883 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.21 8883 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 8883
+       }
+    }
+}
+
+virtual_server 192.168.204.100 18083 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.21 18083 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 18083
+       }
+    }
+}
+
+virtual_server 192.168.204.100 18081 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.21 18081 {
+        weight 1
+        TCP_CHECK {
+            connect_timeout 3
+            delay_before_retry 3
+            connect_port 18081
+       }
+    }
+}
+EOF
+
+> /usr/local/docker/keepalived/backup/check-haproxy.sh
+cat << EOF >> /usr/local/docker/keepalived/backup/check-haproxy.sh
+#!/bin/bash
+count=\`netstat -apn | grep 1881 | wc -l\`
+if [ \$count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+EOF
+
+chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
+
+# chmod +x /usr/local/docker/keepalived/create-node.sh
+
+# /usr/local/docker/keepalived/create-node.sh
+
+# ls /usr/local/docker/keepalived/
+backup  create-node.sh  master
+```
+
+***完整的 check-haproxy.sh:***
+
+```sh
+#!/bin/bash
+count=`netstat -apn | grep 1882 | wc -l`
+if [ $count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+```
+
+### 配置 docker-compose.yml
+
+```bash
+# > /usr/local/docker/keepalived/docker-compose.yml
+
+# vim /usr/local/docker/keepalived/docker-compose.yml
+version: '3.9'
+
+services:
+ keepalived-master:
+  image: osixia/keepalived:latest
+  container_name: keepalived-master
+  restart: always
+  cap_add:
+   - NET_BROADCAST
+   - NET_ADMIN
+   - NET_RAW
+  volumes:
+   - /usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf
+   - /usr/local/docker/keepalived/master/check-haproxy.sh:/usr/bin/check-haproxy.sh
+   - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
+  network_mode: host
+ keepalived-backup:
+  image: osixia/keepalived:latest
+  container_name: keepalived-backup
+  restart: always
+  cap_add:
+   - NET_BROADCAST
+   - NET_ADMIN
+   - NET_RAW
+  volumes:
+   - /usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf
+   - /usr/local/docker/keepalived/backup/check-haproxy.sh:/usr/bin/check-haproxy.sh
+   - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
+  network_mode: host
+```
+
+### 启动 docker-compose
+
+```bash
+# docker-compose -f /usr/local/docker/keepalived/docker-compose.yml up -d
+[+] Running 2/2
+ ⠿ Container keepalived-backup  Started                                                                          0.9s
+ ⠿ Container keepalived-master  Started                                                                          0.9s
+
+# docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                                                                            NAMES
+e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 seconds ago   Up 38 seconds                                                                                                    keepalived-backup
+4358cebd4edd   osixia/keepalived:latest             "/container/tool/run"    39 seconds ago   Up 38 seconds                                                                                                    keepalived-master                                                                                               keepalived-master
+```
+
+查看宿主机的网卡:
+
+```bash
+# ip addr
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 00:0c:29:a1:ab:0a brd ff:ff:ff:ff:ff:ff
+    inet 192.168.204.107/24 brd 192.168.204.255 scope global noprefixroute ens33
+       valid_lft forever preferred_lft forever
+    inet 192.168.204.100/32 scope global ens33
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ed8d:b0e:23a3:cee4/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+```
+
+### MQTTX 连接配置 (SSL/TLS)
+
+连接: ```VIP:8883```，用户名/密码: ```admin/admin```。
+
+### 访问 haproxy 监控界面
+
+连接 ```VIP:18081``` :
+
+```bash
+# curl -XGET http://192.168.204.100:18081/monitor
+```
