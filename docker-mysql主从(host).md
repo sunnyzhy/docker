@@ -40,6 +40,7 @@ mysql         latest    3218b38490ce   5 months ago   516MB
 # mkdir -p /usr/local/docker/mysql
 
 # vim /usr/local/docker/mysql/create-node.sh
+#!/bin/sh
 mkdir -p /usr/local/docker/mysql/{master,slave}
 cd /usr/local/docker/mysql/master
 mkdir conf data mysql-files
