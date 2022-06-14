@@ -98,9 +98,12 @@ cat << EOF >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch
 cluster.name: "docker-cluster"
 network.host: 0.0.0.0
 http.cors.enabled: true
-http.cors.allow-origin: "*"node.name: elasticsearch-${index}
-discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]cluster.initial_master_nodes: ["elasticsearch-1"]
-EOFdone
+http.cors.allow-origin: "*"
+node.name: elasticsearch-${index}
+discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]
+cluster.initial_master_nodes: ["elasticsearch-1"]
+EOF
+done
 
 # chmod +x /usr/local/docker/elasticsearch/create-node.sh
 
