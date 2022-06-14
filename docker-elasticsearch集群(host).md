@@ -39,6 +39,9 @@ elasticsearch            7.12.1    41dc8ea0f139   13 months ago   851MB
 # > /usr/local/docker/elasticsearch/create-node.sh
 
 # vim /usr/local/docker/elasticsearch/create-node.sh
+```
+
+```sh
 #!/bin/sh
 num=0
 for index in $(seq 1 3);
@@ -61,7 +64,9 @@ http.cors.enabled: true
 http.cors.allow-origin: "*"
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/elasticsearch/create-node.sh
 
 # /usr/local/docker/elasticsearch/create-node.sh
@@ -88,6 +93,9 @@ http.cors.allow-origin: "*"
 # > /usr/local/docker/elasticsearch/create-docker-compose.sh
 
 # vim /usr/local/docker/elasticsearch/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/elasticsearch/docker-compose.yml
 cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
@@ -109,7 +117,9 @@ cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
   network_mode: host
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/elasticsearch/create-docker-compose.sh
 
 # /usr/local/docker/elasticsearch/create-docker-compose.sh
