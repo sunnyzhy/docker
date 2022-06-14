@@ -84,6 +84,9 @@ dc695bb337ba   influxdb                bridge    local
 # > /usr/local/docker/influxdb/create-node.sh
 
 # vim /usr/local/docker/influxdb/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/influxdb/{conf,data}
 
@@ -99,7 +102,9 @@ docker cp influxdb:/var/lib/influxdb/wal /usr/local/docker/influxdb/data
 ## 数据目录授权
 ##--------------------------------------------------------------------
 chmod -R 777 /usr/local/docker/influxdb/data
+```
 
+```bash
 # chmod +x /usr/local/docker/influxdb/create-node.sh
 
 # /usr/local/docker/influxdb/create-node.sh
@@ -114,6 +119,9 @@ conf  create-node.sh  data
 # echo 'Asia/Shanghai' > /etc/timezone/timezone
 
 # vim /usr/local/docker/influxdb/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
