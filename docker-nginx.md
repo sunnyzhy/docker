@@ -197,6 +197,8 @@ services:
    - /usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
    - /usr/local/docker/nginx/html:/usr/share/nginx/html
    - /usr/local/docker/nginx/logs:/var/log/nginx
+   - /etc/timezone/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
   ports:
    - 80:80
   networks:
