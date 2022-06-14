@@ -83,43 +83,124 @@ cad7d065639d   none            null      local
 # mkdir -p /usr/local/docker/elasticsearch
 
 # > /usr/local/docker/elasticsearch/create-node.sh
+```
 
+```bash
 # vim /usr/local/docker/elasticsearch/create-node.sh
+```
+
+```sh
 #!/bin/sh
 num=0
 for index in $(seq 1 3);
 do
 mkdir -p /usr/local/docker/elasticsearch/node-${index}
+
+##--------------------------------------------------------------------
+## 拷贝容器目录到宿主机
+##--------------------------------------------------------------------
 docker cp elasticsearch:/usr/share/elasticsearch/config/ /usr/local/docker/elasticsearch/node-${index}/
 docker cp elasticsearch:/usr/share/elasticsearch/data/ /usr/local/docker/elasticsearch/node-${index}/
 docker cp elasticsearch:/usr/share/elasticsearch/logs/ /usr/local/docker/elasticsearch/node-${index}/
+
+##--------------------------------------------------------------------
+## 修改集群配置文件
+##--------------------------------------------------------------------
 > /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
 cat << EOF >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
+# 集群名称 所有节点名称一致
 cluster.name: "docker-cluster"
+
 network.host: 0.0.0.0
+
+# 支持跨域访问
 http.cors.enabled: true
 http.cors.allow-origin: "*"
-node.name: elasticsearch-${index}
-discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]
-cluster.initial_master_nodes: ["elasticsearch-1"]
-EOF
-done
 
+# 当前该节点的名称，每个节点不能重复
+node.name: elasticsearch-${index}
+
+# 当前该节点是不是有资格竞选主节点
+node.master: true
+
+# 当前该节点是否存储数据
+node.data: true
+
+# 设置其它节点和该节点交互的本机器的ip地址
+network.publish_host: 192.168.3.11
+
+# 配置集群的主机地址
+discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]
+
+# 初始主节点，使用一组初始的符合主条件的节点引导集群
+cluster.initial_master_nodes: ["elasticsearch-1","elasticsearch-2","elasticsearch-3"]
+
+#节点等待响应的时间，默认值是3秒,增加这个值，从一定程度上会减少误判导致脑裂
+discovery.zen.ping_timeout: 30s
+
+# 配置集群最少主节点数目，通常为 (可成为主节点的主机数目 / 2) + 1
+discovery.zen.minimum_master_nodes: 2
+
+# 禁用交换内存，提升效率
+bootstrap.memory_lock: true
+EOF
+
+##--------------------------------------------------------------------
+## 数据目录授权
+##--------------------------------------------------------------------
+chmod -R 777 /usr/local/docker/elasticsearch/node-${index}/{data,logs}
+done
+```
+
+```bash
 # chmod +x /usr/local/docker/elasticsearch/create-node.sh
 
 # /usr/local/docker/elasticsearch/create-node.sh
 
 # ls /usr/local/docker/elasticsearch
 create-node.sh  node-1  node-2  node-3
+```
 
+```bash
 # cat /usr/local/docker/elasticsearch/node-1/config/elasticsearch.yml
+```
+
+```yml
+# 集群名称 所有节点名称一致
 cluster.name: "docker-cluster"
+
 network.host: 0.0.0.0
+
+# 支持跨域访问
 http.cors.enabled: true
 http.cors.allow-origin: "*"
+
+# 当前该节点的名称，每个节点不能重复
 node.name: elasticsearch-1
+
+# 当前该节点是不是有资格竞选主节点
+node.master: true
+
+# 当前该节点是否存储数据
+node.data: true
+
+# 设置其它节点和该节点交互的本机器的ip地址
+network.publish_host: 192.168.3.11
+
+# 配置集群的主机地址
 discovery.seed_hosts: ["192.168.3.11", "192.168.3.12", "192.168.3.13"]
-cluster.initial_master_nodes: ["elasticsearch-1"]
+
+# 初始主节点，使用一组初始的符合主条件的节点引导集群
+cluster.initial_master_nodes: ["elasticsearch-1","elasticsearch-2","elasticsearch-3"]
+
+#节点等待响应的时间，默认值是3秒,增加这个值，从一定程度上会减少误判导致脑裂
+discovery.zen.ping_timeout: 30s
+
+# 配置集群最少主节点数目，通常为 (可成为主节点的主机数目 / 2) + 1
+discovery.zen.minimum_master_nodes: 2
+
+# 禁用交换内存，提升效率
+bootstrap.memory_lock: true
 ```
 
 ## 配置 docker-compose.yml
@@ -128,6 +209,9 @@ cluster.initial_master_nodes: ["elasticsearch-1"]
 # > /usr/local/docker/elasticsearch/create-docker-compose.sh
 
 # vim /usr/local/docker/elasticsearch/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/elasticsearch/docker-compose.yml
 cat << EOF >> /usr/local/docker/elasticsearch/docker-compose.yml
