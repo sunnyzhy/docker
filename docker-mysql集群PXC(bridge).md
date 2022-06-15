@@ -125,9 +125,12 @@ pxc 不允许把数据保存到容器之外，也就是说 pxc 无法直接映�
 # > /usr/local/docker/pxc/create-docker-compose.sh
 
 # vim /usr/local/docker/pxc/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
-> /usr/local/docker/pxc/docker-compose-first.yml
-cat << EOF >> /usr/local/docker/pxc/docker-compose-first.yml
+> /usr/local/docker/pxc/docker-compose.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose.yml
 version: '3.9'
 
 services:
@@ -146,25 +149,20 @@ services:
   networks:
    mysql:
     ipv4_address: 192.168.1.20
-networks:
-  mysql:
-   name: mysql
-volumes:
-  pxc_1:
-   name: pxc_1
-   external: true
+  healthcheck:
+    test: "/usr/bin/mysql --user=root --password=root --execute \"USE mysql;\""
+    timeout: 45s
+    interval: 10s
+    retries: 10
 EOF
 
-> /usr/local/docker/pxc/docker-compose-second.yml
-cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
-version: '3.9'
-
-services:
-EOF
 for index in $(seq 2 3);
 do
-cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose.yml
  pxc-${index}:
+  depends_on:
+   pxc-$(expr ${index} - 1):
+    condition: service_healthy
   image: percona/percona-xtradb-cluster:5.7
   container_name: pxc-${index}
   restart: always
@@ -180,135 +178,146 @@ cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
   networks:
    mysql:
     ipv4_address: 192.168.1.2$(expr ${index} - 1)
+  healthcheck:
+    test: "/usr/bin/mysql --user=root --password=root --execute \"USE mysql;\""
+    timeout: 45s
+    interval: 10s
+    retries: 10
 EOF
 done
-cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+
+cat << EOF >> /usr/local/docker/pxc/docker-compose.yml
 networks:
   mysql:
    name: mysql
 volumes:
 EOF
-for index in $(seq 2 3);
+
+for index in $(seq 1 3);
 do
-cat << EOF >> /usr/local/docker/pxc/docker-compose-second.yml
+cat << EOF >> /usr/local/docker/pxc/docker-compose.yml
   pxc_${index}:
    name: pxc_${index}
    external: true
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/pxc/create-docker-compose.sh
 
 # /usr/local/docker/pxc/create-docker-compose.sh
 
 # ls /usr/local/docker/pxc
-create-docker-compose.sh  docker-compose-first.yml  docker-compose-second.yml
+create-docker-compose.sh  docker-compose.yml
 ```
 
 ***完整的 docker-compose.yml:***
 
-- docker-compose-first.yml
-    ```yml
-    version: '3.9'
+```yml
+version: '3.9'
 
-    services:
-     pxc-1:
-      image: percona/percona-xtradb-cluster:5.7
-      container_name: pxc-1
-      restart: always
-      volumes:
-       - pxc_1:/var/lib/mysql
-      environment:
-       MYSQL_ROOT_PASSWORD: root
-       XTRABACKUP_PASSWORD: root
-       CLUSTER_NAME: pxc
-      ports:
-       - 3306:3306
-      networks:
-       mysql:
-        ipv4_address: 192.168.1.20
-    networks:
-      mysql:
-       name: mysql
-    volumes:
-      pxc_1:
-       name: pxc_1
-       external: true
-    ```
-- docker-compose-second.yml
-    ```yml
-    version: '3.9'
-
-    services:
-     pxc-2:
-      image: percona/percona-xtradb-cluster:5.7
-      container_name: pxc-2
-      restart: always
-      volumes:
-       - pxc_2:/var/lib/mysql
-      environment:
-       MYSQL_ROOT_PASSWORD: root
-       XTRABACKUP_PASSWORD: root
-       CLUSTER_NAME: pxc
-       CLUSTER_JOIN: pxc-1
-      ports:
-       - 3307:3306
-      networks:
-       mysql:
-        ipv4_address: 192.168.1.21
-     pxc-3:
-      image: percona/percona-xtradb-cluster:5.7
-      container_name: pxc-3
-      restart: always
-      volumes:
-       - pxc_3:/var/lib/mysql
-      environment:
-       MYSQL_ROOT_PASSWORD: root
-       XTRABACKUP_PASSWORD: root
-       CLUSTER_NAME: pxc
-       CLUSTER_JOIN: pxc-1
-      ports:
-       - 3308:3306
-      networks:
-       mysql:
-        ipv4_address: 192.168.1.22
-    networks:
-      mysql:
-       name: mysql
-    volumes:
-      pxc_2:
-       name: pxc_2
-       external: true
-      pxc_3:
-       name: pxc_3
-       external: true
-    ```
+services:
+ pxc-1:
+  image: percona/percona-xtradb-cluster:5.7
+  container_name: pxc-1
+  restart: always
+  volumes:
+   - pxc_1:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+   XTRABACKUP_PASSWORD: root
+   CLUSTER_NAME: pxc
+  ports:
+   - 3306:3306
+  networks:
+   mysql:
+    ipv4_address: 192.168.1.20
+  healthcheck:
+    test: "/usr/bin/mysql --user=root --password=root --execute \"USE mysql;\""
+    timeout: 45s
+    interval: 10s
+    retries: 10
+ pxc-2:
+  depends_on:
+   pxc-1:
+    condition: service_healthy
+  image: percona/percona-xtradb-cluster:5.7
+  container_name: pxc-2
+  restart: always
+  volumes:
+   - pxc_2:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+   XTRABACKUP_PASSWORD: root
+   CLUSTER_NAME: pxc
+   CLUSTER_JOIN: pxc-1
+  ports:
+   - 3307:3306
+  networks:
+   mysql:
+    ipv4_address: 192.168.1.21
+  healthcheck:
+    test: "/usr/bin/mysql --user=root --password=root --execute \"USE mysql;\""
+    timeout: 45s
+    interval: 10s
+    retries: 10
+ pxc-3:
+  depends_on:
+   pxc-2:
+    condition: service_healthy
+  image: percona/percona-xtradb-cluster:5.7
+  container_name: pxc-3
+  restart: always
+  volumes:
+   - pxc_3:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+   XTRABACKUP_PASSWORD: root
+   CLUSTER_NAME: pxc
+   CLUSTER_JOIN: pxc-1
+  ports:
+   - 3308:3306
+  networks:
+   mysql:
+    ipv4_address: 192.168.1.22
+  healthcheck:
+    test: "/usr/bin/mysql --user=root --password=root --execute \"USE mysql;\""
+    timeout: 45s
+    interval: 10s
+    retries: 10
+networks:
+  mysql:
+   name: mysql
+volumes:
+  pxc_1:
+   name: pxc_1
+   external: true
+  pxc_2:
+   name: pxc_2
+   external: true
+  pxc_3:
+   name: pxc_3
+   external: true
+```
 
 ### 启动 docker-compose
 
 ***注意: 只有当第一个节点完全启动后(在本地连接成功后)，才可以创建第二个、第三个节点。***
 
-1. 先启动 pxc-1
-    ```bash
-    # docker-compose -p pxc-f -f /usr/local/docker/pxc/docker-compose-first.yml up -d
-    [+] Running 1/1
-     ⠿ Container pxc-1  Started
-    ```
-2. 再启动 pxc-2/3
-    ```bash
-    # docker-compose -p pxc-s -f /usr/local/docker/pxc/docker-compose-second.yml up -d
-    [+] Running 2/2
-     ⠿ Container pxc-2  Started                                                                                      2.0s
-     ⠿ Container pxc-3  Started                                                                                      1.9s
-    ```
-3. 查看容器
-    ```bash
-    # docker ps
-    CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                                                                            NAMES
-    e965159dec65   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   11 minutes ago   Up 11 minutes   4567-4568/tcp, 0.0.0.0:3307->3306/tcp, :::3307->3306/tcp                                         pxc-2
-    62129a1c224b   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   11 minutes ago   Up 22 seconds   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 4567-4568/tcp                                         pxc-1
-    c60f63153d97   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   11 minutes ago   Up 1 second     4567-4568/tcp, 0.0.0.0:3308->3306/tcp, :::3308->3306/tcp                                         pxc-3
-    ```
+```bash
+# docker-compose -f /usr/local/docker/pxc/docker-compose.yml up -d
+[+] Running 3/3
+ ⠿ Container pxc-1  Healthy                                                                                     10.8s
+ ⠿ Container pxc-2  Healthy                                                                                     21.9s
+ ⠿ Container pxc-3  Started                                                                                     22.5s
+
+# docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED         STATUS                   PORTS                                                                                            NAMES
+9107ba5fbe18   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   2 minutes ago   Up 2 minutes (healthy)   4567-4568/tcp, 0.0.0.0:3308->3306/tcp, :::3308->3306/tcp                                         pxc-3
+7bff5e9405cb   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   2 minutes ago   Up 2 minutes (healthy)   4567-4568/tcp, 0.0.0.0:3307->3306/tcp, :::3307->3306/tcp                                         pxc-2
+fe1ce92f58ce   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh mysq…"   2 minutes ago   Up 2 minutes (healthy)   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 4567-4568/tcp                                         pxc-1
+```
 
 ### 查看网络
 
@@ -484,6 +493,9 @@ haproxy                          latest    575a5788d81a   5 months ago    101MB
 # > /usr/local/docker/haproxy/create-node.sh
 
 # vim /usr/local/docker/haproxy/create-node.sh
+```
+
+```sh
 #!/bin/sh
 for index in $(seq 1 2);
 do
@@ -547,7 +559,9 @@ listen  proxy-mysql
         option  tcpka
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/haproxy/create-node.sh
 
 # /usr/local/docker/haproxy/create-node.sh
@@ -562,6 +576,9 @@ create-node.sh  node-1  node-2
 # > /usr/local/docker/haproxy/create-docker-compose.sh
 
 # vim /usr/local/docker/haproxy/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/haproxy/docker-compose.yml
 cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
@@ -591,7 +608,9 @@ networks:
     mysql:
       name: mysql
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/haproxy/create-docker-compose.sh
 
 # /usr/local/docker/haproxy/create-docker-compose.sh
@@ -707,6 +726,9 @@ osixia/keepalived                latest    d04966a100a7   2 years ago     72.9MB
 # > /usr/local/docker/keepalived/create-node.sh
 
 # vim /usr/local/docker/keepalived/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/keepalived/master/config
 > /usr/local/docker/keepalived/master/config/keepalived.conf
@@ -839,7 +861,9 @@ fi
 EOF
 
 chmod +x /usr/local/docker/keepalived/backup/check-haproxy.sh
+```
 
+```bash
 # chmod +x /usr/local/docker/keepalived/create-node.sh
 
 # /usr/local/docker/keepalived/create-node.sh
@@ -866,6 +890,9 @@ fi
 # > /usr/local/docker/keepalived/docker-compose.yml
 
 # vim /usr/local/docker/keepalived/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
@@ -970,4 +997,3 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
    # vim /var/lib/docker/volumes/pxc_1/_data/grastate.dat
    safe_to_bootstrap: 1
    ```
-   
