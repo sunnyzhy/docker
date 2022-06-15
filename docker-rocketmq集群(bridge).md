@@ -121,11 +121,22 @@ NETWORK ID     NAME                    DRIVER    SCOPE
 # > /usr/local/docker/rocketmq/create-node.sh
 
 # vim /usr/local/docker/rocketmq/create-node.sh
+```
+
+```sh
 #!/bin/sh
 mkdir -p /usr/local/docker/rocketmq/node/{namesrv-1,namesrv-2,broker-a,broker-a-s,broker-b,broker-b-s}
+
+##--------------------------------------------------------------------
+## 拷贝容器目录到宿主机
+##--------------------------------------------------------------------
 docker cp mqnamesrv:/home/rocketmq/logs /usr/local/docker/rocketmq/node/namesrv-1
 cp -r /usr/local/docker/rocketmq/node/namesrv-1/logs /usr/local/docker/rocketmq/node/namesrv-2
 docker cp mqbroker:/home/rocketmq/rocketmq-4.9.2/conf /usr/local/docker/rocketmq
+
+##--------------------------------------------------------------------
+## 修改集群配置文件
+##--------------------------------------------------------------------
 cat << EOF >> /usr/local/docker/rocketmq/conf/2m-2s-async/broker-a.properties
 namesrvAddr=192.168.4.10:9876;192.168.4.11:9876
 listenPort=10911
@@ -142,6 +153,10 @@ cat << EOF >> /usr/local/docker/rocketmq/conf/2m-2s-async/broker-b-s.properties
 namesrvAddr=192.168.4.10:9876;192.168.4.11:9876
 listenPort=10911
 EOF
+
+##--------------------------------------------------------------------
+## 拷贝容器目录到宿主机
+##--------------------------------------------------------------------
 docker cp mqbroker:/home/rocketmq/logs /usr/local/docker/rocketmq/node/broker-a
 docker cp mqbroker:/home/rocketmq/store /usr/local/docker/rocketmq/node/broker-a
 chmod -R 777 /usr/local/docker/rocketmq/node/broker-a
@@ -154,8 +169,17 @@ chmod -R 777 /usr/local/docker/rocketmq/node/broker-b
 cp -r /usr/local/docker/rocketmq/node/broker-a/logs /usr/local/docker/rocketmq/node/broker-b-s
 cp -r /usr/local/docker/rocketmq/node/broker-a/store /usr/local/docker/rocketmq/node/broker-b-s
 chmod -R 777 /usr/local/docker/rocketmq/node/broker-b-s
+
 mkdir -p /usr/local/docker/rocketmq/dashboard/conf
+
+##--------------------------------------------------------------------
+## 拷贝 dashboard 容器目录到宿主机
+##--------------------------------------------------------------------
 docker cp mqdashboard:/root/logs /usr/local/docker/rocketmq/dashboard
+
+##--------------------------------------------------------------------
+## 修改 dashboard 配置文件
+##--------------------------------------------------------------------
 > /usr/local/docker/rocketmq/dashboard/conf/application.properties
 cat << EOF >> /usr/local/docker/rocketmq/dashboard/conf/application.properties
 #
@@ -214,6 +238,9 @@ rocketmq.config.loginRequired=true
 rocketmq.config.useTLS=false
 EOF
 
+##--------------------------------------------------------------------
+## 修改 dashboard 认证文件
+##--------------------------------------------------------------------
 > /usr/local/docker/rocketmq/dashboard/conf/users.properties
 cat << EOF >> /usr/local/docker/rocketmq/dashboard/conf/users.properties
 #
@@ -242,7 +269,9 @@ admin=admin,1
 # Define Users
 user=user
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/rocketmq/create-node.sh
 
 # /usr/local/docker/rocketmq/create-node.sh
@@ -272,6 +301,9 @@ broker-a  broker-a-s  broker-b  broker-b-s  namesrv-1  namesrv-2
 # > /usr/local/docker/rocketmq/docker-compose.yml
 
 # vim /usr/local/docker/rocketmq/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
