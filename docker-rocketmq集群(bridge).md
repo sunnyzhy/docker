@@ -319,6 +319,11 @@ services:
   networks:
     rocketmq:
       ipv4_address: 192.168.4.10
+  healthcheck:
+    test: "netstat -apn | grep 9876 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqnamesrv-2:
   image: apache/rocketmq:latest
   container_name: mqnamesrv-2
@@ -331,7 +336,17 @@ services:
   networks:
     rocketmq:
       ipv4_address: 192.168.4.11
+  healthcheck:
+    test: "netstat -apn | grep 9876 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqbroker-a:
+  depends_on:
+    mqnamesrv-1:
+      condition: service_healthy
+    mqnamesrv-2:
+      condition: service_healthy
   image: apache/rocketmq:latest
   container_name: mqbroker-a
   restart: always
@@ -340,15 +355,22 @@ services:
    - /usr/local/docker/rocketmq/node/broker-a/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-a/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-a.properties
-  links:
-   - mqnamesrv-1:mqnamesrv-1
-   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10911:10911
   networks:
     rocketmq:
       ipv4_address: 192.168.4.20
+  healthcheck:
+    test: "netstat -apn | grep 10911 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqbroker-a-s:
+  depends_on:
+    mqnamesrv-1:
+      condition: service_healthy
+    mqnamesrv-2:
+      condition: service_healthy
   image: apache/rocketmq:latest
   container_name: mqbroker-a-s
   restart: always
@@ -357,15 +379,22 @@ services:
    - /usr/local/docker/rocketmq/node/broker-a-s/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-a-s/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-a-s.properties
-  links:
-   - mqnamesrv-1:mqnamesrv-1
-   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10912:10911
   networks:
     rocketmq:
       ipv4_address: 192.168.4.21
+  healthcheck:
+    test: "netstat -apn | grep 10911 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqbroker-b:
+  depends_on:
+    mqnamesrv-1:
+      condition: service_healthy
+    mqnamesrv-2:
+      condition: service_healthy
   image: apache/rocketmq:latest
   container_name: mqbroker-b
   restart: always
@@ -374,15 +403,22 @@ services:
    - /usr/local/docker/rocketmq/node/broker-b/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-b/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-b.properties
-  links:
-   - mqnamesrv-1:mqnamesrv-1
-   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10913:10911
   networks:
     rocketmq:
       ipv4_address: 192.168.4.22
+  healthcheck:
+    test: "netstat -apn | grep 10911 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqbroker-b-s:
+  depends_on:
+    mqnamesrv-1:
+      condition: service_healthy
+    mqnamesrv-2:
+      condition: service_healthy
   image: apache/rocketmq:latest
   container_name: mqbroker-b-s
   restart: always
@@ -391,24 +427,36 @@ services:
    - /usr/local/docker/rocketmq/node/broker-b-s/logs:/home/rocketmq/logs
    - /usr/local/docker/rocketmq/node/broker-b-s/store:/home/rocketmq/store
   command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/2m-2s-async/broker-b-s.properties
-  links:
-   - mqnamesrv-1:mqnamesrv-1
-   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 10914:10911
   networks:
     rocketmq:
       ipv4_address: 192.168.4.23
+  healthcheck:
+    test: "netstat -apn | grep 10911 | wc -l"
+    timeout: 10s
+    interval: 10s
+    retries: 10
  mqdashboard:
+  depends_on:
+    mqnamesrv-1:
+      condition: service_healthy
+    mqnamesrv-2:
+      condition: service_healthy
+    mqbroker-a:
+      condition: service_healthy
+    mqbroker-a-s:
+      condition: service_healthy
+    mqbroker-b:
+      condition: service_healthy
+    mqbroker-b-s:
+      condition: service_healthy
   image: apacherocketmq/rocketmq-dashboard:latest
   container_name: mqdashboard
   restart: always
   volumes:
    - /usr/local/docker/rocketmq/dashboard/conf/application.properties:/application.properties
    - /usr/local/docker/rocketmq/dashboard/conf/users.properties:/tmp/rocketmq-console/data/users.properties
-  links:
-   - mqnamesrv-1:mqnamesrv-1
-   - mqnamesrv-2:mqnamesrv-2
   ports:
    - 8080:8080
   networks:
@@ -428,23 +476,23 @@ networks:
 
 # docker-compose -f /usr/local/docker/rocketmq/docker-compose.yml up -d
 [+] Running 7/7
- ⠿ Container mqnamesrv-2   Started                                                                               0.7s
- ⠿ Container mqnamesrv-1   Started                                                                               0.7s
- ⠿ Container mqbroker-b    Started                                                                               2.7s
- ⠿ Container mqdashboard   Started                                                                               2.8s
- ⠿ Container mqbroker-b-s  Started                                                                               2.7s
- ⠿ Container mqbroker-a    Started                                                                               2.0s
- ⠿ Container mqbroker-a-s  Started                                                                               2.1s
+ ⠿ Container mqnamesrv-2   Healthy                                                                              18.5s
+ ⠿ Container mqnamesrv-1   Healthy                                                                              18.5s
+ ⠿ Container mqbroker-a    Healthy                                                                              28.0s
+ ⠿ Container mqbroker-b    Healthy                                                                              30.6s
+ ⠿ Container mqbroker-b-s  Healthy                                                                              29.0s
+ ⠿ Container mqbroker-a-s  Healthy                                                                              29.0s
+ ⠿ Container mqdashboard   Started                                                                             298.7s
 
 # docker ps
-CONTAINER ID   IMAGE                                      COMMAND                  CREATED         STATUS         PORTS                                                                                            NAMES
-25f533d8c186   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
-1f3cd3e2455e   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
-a7a3d4facdce   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
-88b82bdd4433   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   2 minutes ago   Up 2 minutes   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
-8a88895d3af5   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
-54f2502ae04d   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 0.0.0.0:9876->9876/tcp, :::9876->9876/tcp, 10911-10912/tcp                            mqnamesrv-1
-e2f6a814cff5   apache/rocketmq:latest                     "sh mqnamesrv"           2 minutes ago   Up 2 minutes   10909/tcp, 10911-10912/tcp, 0.0.0.0:9877->9876/tcp, :::9877->9876/tcp                            mqnamesrv-2
+CONTAINER ID   IMAGE                                      COMMAND                  CREATED         STATUS                   PORTS                                                                                            NAMES
+15e0c81beb28   apacherocketmq/rocketmq-dashboard:latest   "sh -c 'java $JAVA_O…"   6 minutes ago   Up About a minute        0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        mqdashboard
+1087c228dc53   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   6 minutes ago   Up 5 minutes (healthy)   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10911->10911/tcp, :::10911->10911/tcp                    mqbroker-a
+62aa40e27e62   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   6 minutes ago   Up 5 minutes (healthy)   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10913->10911/tcp, :::10913->10911/tcp                    mqbroker-b
+2319df209fef   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   6 minutes ago   Up 5 minutes (healthy)   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10912->10911/tcp, :::10912->10911/tcp                    mqbroker-a-s
+865f2c383087   apache/rocketmq:latest                     "sh mqbroker -c /hom…"   6 minutes ago   Up 5 minutes (healthy)   9876/tcp, 10909/tcp, 10912/tcp, 0.0.0.0:10914->10911/tcp, :::10914->10911/tcp                    mqbroker-b-s
+66bbde187a4c   apache/rocketmq:latest                     "sh mqnamesrv"           6 minutes ago   Up 5 minutes (healthy)   10909/tcp, 0.0.0.0:9876->9876/tcp, :::9876->9876/tcp, 10911-10912/tcp                            mqnamesrv-1
+5634ec3aaa98   apache/rocketmq:latest                     "sh mqnamesrv"           6 minutes ago   Up 5 minutes (healthy)   10909/tcp, 10911-10912/tcp, 0.0.0.0:9877->9876/tcp, :::9877->9876/tcp                            mqnamesrv-2
 ```
 
 ## 查看网络
