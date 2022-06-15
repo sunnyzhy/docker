@@ -964,4 +964,10 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
       ```
 
 - 解决方法
-   按指引修改 ```safe_to_bootstrap = 1```
+
+   按指引修改 ```safe_to_bootstrap = 1```:
+   ```bash
+   # vim /var/lib/docker/volumes/pxc_1/_data/grastate.dat
+   safe_to_bootstrap: 1
+   ```
+   
