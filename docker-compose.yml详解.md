@@ -36,7 +36,7 @@ services:                 # 定义所有的服务集合
                           command: [bundle,exec,thin,-p,3000]
 
     container_name:       # 指定容器的名称，等同于 docker run --name
-    depends_on:           # 定义服务创建与移除的顺序
+    depends_on:           # 定义服务创建与移除的顺序，与 healthcheck 结合使用可以定义服务的启动顺序
                           在下述示例中:
                               - 创建服务的时候，先创建 db 和 redis 服务，再创建 web 服务
                               - 删除服务的时候，先删除 web 服务，再删除 db 和 redis 服务
@@ -51,6 +51,20 @@ services:                 # 定义所有的服务集合
                               image: redis
                             db:
                               image: postgres
+                          ----------------------------------
+                          services:
+                            web:
+                              build: .
+                              depends_on:
+                                db:
+                                  condition: service_healthy
+                                redis:
+                                  condition: service_healthy
+                            redis:
+                              image: redis
+                            db:
+                              image: postgres
+
     devices:              # 指定设备映射列表，等同于 docker run --device
                           格式: HOST_PATH:CONTAINER_PATH[:CGROUP_PERMISSIONS]
                           示例:
@@ -158,7 +172,7 @@ services:                 # 定义所有的服务集合
                             - "com.example.department=Finance"
                             - "com.example.label-with-empty-value"
 
-    links:                # 链接到其它服务中的容器, 可以通过 links 定义容器的启动顺序
+    links:                # 链接到其它服务中的容器
                           示例:
                           services:
                             web:
