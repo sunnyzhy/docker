@@ -583,6 +583,8 @@ CONTAINER ID   IMAGE                                      COMMAND               
 
 ## 访问 dashboard
 
+连接: ```$HOST:8080```，用户名/密码: ```admin/admin```
+
 ```
 http://192.168.204.107:8080/
 ```
