@@ -109,7 +109,9 @@ NETWORK ID     NAME            DRIVER    SCOPE
 # docker cp nginx:/etc/nginx/nginx.conf /usr/local/docker/nginx/conf/
 
 # vim /usr/local/docker/nginx/conf/nginx.conf
+```
 
+```conf
 user  nginx;
 worker_processes  auto;
 
@@ -150,8 +152,13 @@ http {
         }
     }
 }
+```
 
+```bash
 # vim /usr/local/docker/nginx/html/index.html
+```
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -175,7 +182,9 @@ Commercial support is available at
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
+```
 
+```bash
 # chmod -R 777 /usr/local/docker/nginx/{html,logs}
 
 # ls /usr/local/docker/nginx
@@ -186,6 +195,9 @@ conf  html  logs
 
 ```bash
 # vim /usr/local/docker/nginx/docker-compose.yml
+```
+
+```yml
 version: '3.9'
 
 services:
