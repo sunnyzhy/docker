@@ -940,3 +940,28 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
 ```bash
 # curl -XGET http://192.168.204.100:18081/monitor
 ```
+
+## FAQ
+
+### It may not be safe to bootstrap the cluster from this node. It was not the last one to leave the cluster and may not contain all the updates. To force cluster bootstrap with this node, edit the grastate.dat file manually and set safe_to_bootstrap to 1 .
+
+- 原因
+   1. 定位最近状态的节点
+      ```
+      当我们关闭一个节点时，其 seqno 会写入 grastate.dat 文件中，这时后续的 seqno 该节点将无法接收到。
+
+      注意数据库开启状态或者异常关闭时 ```seqno = -1```
+
+      当我们将所有节点关闭，准备重启时我们需要知道哪个节点是最后关闭的，并使用它来引导集群。
+      ```
+   2. 安全引导保护
+      ```
+      安全引导即 safe to bootstrap ，从 3.19 版本开始，Galera 为防止在错误的节点上引导集群，引入了安全引导的保护。
+
+      Galera 会自动判断哪个节点是最后一个离开集群的，并将信息写入 grastate.dat 文件中。
+      
+      如果我们使用 ```safe_to_bootstrao = 0``` 的节点来引导，数据库将无法启动。
+      ```
+
+- 解决方法
+   按指引修改 ```safe_to_bootstrap = 1```
