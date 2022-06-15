@@ -76,6 +76,9 @@ f79b0ef50b9c   redis            bridge    local
 # > /usr/local/docker/redis/create-node.sh
 
 # vim /usr/local/docker/redis/create-node.sh
+```
+
+```sh
 #!/bin/sh
 for index in $(seq 1 6);
 do
@@ -92,7 +95,9 @@ cluster-announce-bus-port 16379
 appendonly yes
 EOF
 done
+```
 
+```bash
 # chmod +x /usr/local/docker/redis/create-node.sh
 
 # /usr/local/docker/redis/create-node.sh
@@ -107,6 +112,9 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 # > /usr/local/docker/redis/create-docker-compose.sh
 
 # vim /usr/local/docker/redis/create-docker-compose.sh
+```
+
+```sh
 #!/bin/sh
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
@@ -139,7 +147,9 @@ networks:
     redis:
       name: redis
 EOF
+```
 
+```bash
 # chmod +x /usr/local/docker/redis/create-docker-compose.sh
 
 # /usr/local/docker/redis/create-docker-compose.sh
