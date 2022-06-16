@@ -9,7 +9,7 @@
 - 容器与宿主机映射
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |influxdb|192.168.6.0|8083:8083<br />8086:8086|192.168.204.107|/usr/local/docker/influxdb/conf/influxdb.conf:/etc/influxdb/influxdb.conf<br />/usr/local/docker/influxdb/data:\/var/lib/influxdb|
+    |influxdb|192.168.6.0|8086:8086|192.168.204.107|/usr/local/docker/influxdb/conf/influxdb.conf:/etc/influxdb/influxdb.conf<br />/usr/local/docker/influxdb/data:\/var/lib/influxdb|
 
 - influxdb:1.8.1 镜像配置文件 influxdb.conf
     ```conf
@@ -77,7 +77,7 @@ dc695bb337ba   influxdb                bridge    local
 ## 在宿主机上创建 influxdb 目录
 
 ```bash
-# docker run --name influxdb --net influxdb -p 8083:8083 -p 8086:8086 -d influxdb:1.8.10
+# docker run --name influxdb --net influxdb -p 8086:8086 -d influxdb:1.8.10
 
 # mkdir -p /usr/local/docker/influxdb
 
@@ -135,7 +135,6 @@ services:
    - /etc/timezone/timezone:/etc/timezone
    - /etc/localtime:/etc/localtime
   ports:
-   - 8083:8083
    - 8086:8086
   networks:
    influxdb:
@@ -158,7 +157,7 @@ networks:
 
 # docker ps
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                                                                                            NAMES
-b4bc84f5acbc   influxdb:1.8.10          "/entrypoint.sh infl…"   27 seconds ago   Up 25 seconds   0.0.0.0:8083->8083/tcp, :::8083->8083/tcp, 0.0.0.0:8086->8086/tcp, :::8086->8086/tcp             influxdb                                                            nginx
+e02fc75eff03   influxdb:1.8.10          "/entrypoint.sh infl…"   16 seconds ago   Up 14 seconds   0.0.0.0:8086->8086/tcp, :::8086->8086/tcp                                                        influxdb
 ```
 
 ## 查看网络
