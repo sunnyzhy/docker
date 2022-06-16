@@ -318,8 +318,8 @@ EOF
 
 # /usr/local/docker/elasticsearch/create-docker-compose.sh
 
-# ls /usr/local/docker/elasticsearch
-create-docker-compose.sh  create-node.sh  docker-compose.yml  node-1  node-2  node-3
+# ls /usr/local/docker/elasticsearch -a
+.  ..  create-docker-compose.sh  docker-compose.yml  .env
 ```
 
 ***完整的 docker-compose.yml:***
