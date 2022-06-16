@@ -114,6 +114,8 @@ dc695bb337ba   influxdb                bridge    local
 
 ## 配置 docker-compose.yml
 
+[influxdb2](https://docs.influxdata.com/influxdb/v2.0/upgrade/v1-to-v2/docker/ 'influxdb2')
+
 ```bash
 # echo 'Asia/Shanghai' > /etc/timezone/timezone
 
@@ -210,7 +212,22 @@ d2dc44746fa3   influxdb:latest          "/entrypoint.sh infl…"   19 seconds ag
 ]
 ```
 
-## 访问 influxdb2
+## 执行 influxdb2 客户端命令行
+
+```bash
+# docker exec -it -u root influxdb2 /bin/sh
+
+# influx version
+Influx CLI 2.2.1 (git: 31ac783) build_date: 2021-11-09T21:24:22Z
+
+# influx bucket list -o "zhy"
+ID			Name		Retention	Shard group duration	Organization ID		Schema Type
+1ae215f264372e5d	_monitoring	168h0m0s	24h0m0s			f884e97bd91f961b	implicit
+dd411414f11e7814	_tasks		72h0m0s		24h0m0s			f884e97bd91f961b	implicit
+0dc2234075563b9d	zhy		infinite	168h0m0s		f884e97bd91f961b	implicit
+```
+
+## 浏览器访问 influxdb2
 
 访问 ```https://$HOST_IP:8086```, 用户名/密码: ```admin/influxdb```, 如:
 
