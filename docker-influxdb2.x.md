@@ -217,3 +217,5 @@ d2dc44746fa3   influxdb:latest          "/entrypoint.sh infl…"   19 seconds ag
 ```
 http://192.168.204.107:8086
 ```
+
+***注: API Tokens 包含当前用户的 Token，与后端整合时需要用到。**
