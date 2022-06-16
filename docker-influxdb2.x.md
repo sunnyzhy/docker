@@ -236,3 +236,27 @@ http://192.168.204.107:8086
 ```
 
 ***注: API Tokens 包含当前用户的 Token，与后端整合时需要用到。***
+
+## FAQ
+
+### found existing boltdb file, skipping setup wrapper	{"system": "docker", "bolt_path": "/var/lib/influxdb2/influxd.bolt"}
+
+- 原因
+
+    正常启动 influxdb2 时，日志的第一行打印 ```booting influxd server in the background	{"system": "docker"}```，并且会打印环境变量里配置的用户名、组织名称、桶名称:
+    
+    ```
+    User	Organization	Bucket
+    admin	zhy		zhy
+    ```
+    
+    当日志的第一行打印 ```found existing boltdb file, skipping setup wrapper	{"system": "docker", "bolt_path": "/var/lib/influxdb2/influxd.bolt"}``` 时，说明挂载的宿主机 volume 里已经存在 ```influxd.bolt``` 文件，此时登录会返回 ```unauthorized access```
+
+- 解决方法
+
+   1. 删除挂载的宿主机 volume 里的 ```influxd.bolt``` 文件:
+   
+      ```bash
+      # rm -rf /var/lib/docker/volumes/influxdb2/_data/influxd.bolt
+      ```
+   2. 重新启动 influxdb2
