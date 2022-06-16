@@ -13,10 +13,15 @@
     |elasticsearch-2|192.168.3.12|9201:9200<br />9301:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-2/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-2/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-2/logs:/usr/share/elasticsearch/logs|
     |elasticsearch-3|192.168.3.13|9202:9200<br />9302:9300|192.168.204.107|/usr/local/docker/elasticsearch/node-3/config:/usr/share/elasticsearch/config<br />/usr/local/docker/elasticsearch/elasticsearch-3/data:/usr/share/elasticsearch/data<br />/usr/local/docker/elasticsearch/elasticsearch-3/logs:/usr/share/elasticsearch/logs|
 
-- elasticsearch:7.12.1 镜像配置文件 elasticsearch.yml
+- docker.elastic.co/elasticsearch/elasticsearch:7.12.1 镜像配置文件 elasticsearch.yml
     ```yml
     cluster.name: "docker-cluster"
     network.host: 0.0.0.0
+    ```
+
+- 单节点启动:
+    ```bash
+    # docker run -d --name elasticsearch --net elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     ```
 
 ## 拉取 elasticsearch 镜像
@@ -103,105 +108,7 @@ cad7d065639d   none            null      local
 ## 在宿主机上创建 elasticsearch 目录
 
 ```bash
-# docker run -d --name elasticsearch --net elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-
 # mkdir -p /usr/local/docker/elasticsearch
-
-# > /usr/local/docker/elasticsearch/create-node.sh
-
-# vim /usr/local/docker/elasticsearch/create-node.sh
-```
-
-```sh
-#!/bin/sh
-for index in $(seq 1 3);
-do
-mkdir -p /usr/local/docker/elasticsearch/{certs,node-${index}}
-
-##--------------------------------------------------------------------
-## 拷贝容器目录到宿主机
-##--------------------------------------------------------------------
-docker cp elasticsearch:/usr/share/elasticsearch/config/ /usr/local/docker/elasticsearch/node-${index}/
-docker cp elasticsearch:/usr/share/elasticsearch/data/ /usr/local/docker/elasticsearch/node-${index}/
-docker cp elasticsearch:/usr/share/elasticsearch/logs/ /usr/local/docker/elasticsearch/node-${index}/
-
-##--------------------------------------------------------------------
-## 修改集群配置文件
-##--------------------------------------------------------------------
-> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-cat << EOF >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-cluster.name: "docker-cluster"
-network.host: 0.0.0.0
-
-node.name: elasticsearch-${index}
-bootstrap.memory_lock: true
-
-xpack.security.enabled: true
-xpack.security.http.ssl.enabled: true
-xpack.security.http.ssl.key: certs/elasticsearch-${index}/elasticsearch-${index}.key
-xpack.security.http.ssl.certificate: certs/elasticsearch-${index}/elasticsearch-${index}.crt
-xpack.security.http.ssl.certificate_authorities: certs/ca/ca.crt
-xpack.security.http.ssl.verification_mode: certificate
-xpack.security.transport.ssl.enabled: true
-xpack.security.transport.ssl.key: certs/elasticsearch-${index}/elasticsearch-${index}.key
-xpack.security.transport.ssl.certificate: certs/elasticsearch-${index}/elasticsearch-${index}.crt
-xpack.security.transport.ssl.certificate_authorities: certs/ca/ca.crt
-xpack.security.transport.ssl.verification_mode: certificate
-xpack.license.self_generated.type: basic
-
-cluster.initial_master_nodes: elasticsearch-1,elasticsearch-2,elasticsearch-3
-EOF
-
-if [ ${index} == 1 ]; then
-echo "discovery.seed_hosts: elasticsearch-2,elasticsearch-3" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-fi
-if [ ${index} == 2 ]; then
-echo "discovery.seed_hosts: elasticsearch-1,elasticsearch-3" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-fi
-if [ ${index} == 3 ]; then
-echo "discovery.seed_hosts: elasticsearch-1,elasticsearch-2" >> /usr/local/docker/elasticsearch/node-${index}/config/elasticsearch.yml
-fi
-
-##--------------------------------------------------------------------
-## 数据目录授权
-##--------------------------------------------------------------------
-chmod -R 777 /usr/local/docker/elasticsearch/node-${index}/{data,logs}
-done
-```
-
-```bash
-# chmod +x /usr/local/docker/elasticsearch/create-node.sh
-
-# /usr/local/docker/elasticsearch/create-node.sh
-
-# ls /usr/local/docker/elasticsearch
-certs  create-node.sh  node-1  node-2  node-3
-
-# cat /usr/local/docker/elasticsearch/node-1/config/elasticsearch.yml
-```
-
-```yml
-cluster.name: "docker-cluster"
-network.host: 0.0.0.0
-
-node.name: elasticsearch-1
-bootstrap.memory_lock: true
-
-xpack.security.enabled: true
-xpack.security.http.ssl.enabled: true
-xpack.security.http.ssl.key: certs/elasticsearch-1/elasticsearch-1.key
-xpack.security.http.ssl.certificate: certs/elasticsearch-1/elasticsearch-1.crt
-xpack.security.http.ssl.certificate_authorities: certs/ca/ca.crt
-xpack.security.http.ssl.verification_mode: certificate
-xpack.security.transport.ssl.enabled: true
-xpack.security.transport.ssl.key: certs/elasticsearch-1/elasticsearch-1.key
-xpack.security.transport.ssl.certificate: certs/elasticsearch-1/elasticsearch-1.crt
-xpack.security.transport.ssl.certificate_authorities: certs/ca/ca.crt
-xpack.security.transport.ssl.verification_mode: certificate
-xpack.license.self_generated.type: basic
-
-cluster.initial_master_nodes: elasticsearch-1,elasticsearch-2,elasticsearch-3
-discovery.seed_hosts: elasticsearch-2,elasticsearch-3
 ```
 
 ## 配置 docker-compose.yml
