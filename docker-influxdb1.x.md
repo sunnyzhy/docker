@@ -1,4 +1,4 @@
-# docker-influxdb
+# docker-influxdb1.x
 
 ## 前言
 
