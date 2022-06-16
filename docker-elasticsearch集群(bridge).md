@@ -41,11 +41,7 @@ docker.elastic.co/elasticsearch/elasticsearch   7.12.1    41dc8ea0f139   14 mont
 
 # docker network ls
 NETWORK ID     NAME            DRIVER    SCOPE
-b0308476ccc3   bridge          bridge    local
 02377983e431   elasticsearch   bridge    local
-3724599c2452   host            host      local
-d61017ea048b   mysql           bridge    local
-cad7d065639d   none            null      local
 
 # docker network inspect elasticsearch
 [
