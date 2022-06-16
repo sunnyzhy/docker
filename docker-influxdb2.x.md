@@ -235,4 +235,4 @@ dd411414f11e7814	_tasks		72h0m0s		24h0m0s			f884e97bd91f961b	implicit
 http://192.168.204.107:8086
 ```
 
-***注: API Tokens 包含当前用户的 Token，与后端整合时需要用到。**
+***注: API Tokens 包含当前用户的 Token，与后端整合时需要用到。***
