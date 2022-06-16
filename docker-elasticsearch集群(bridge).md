@@ -532,10 +532,6 @@ networks:
 ## 启动 docker-compose
 
 ```bash
-# docker stop elasticsearch
-
-# docker rm elasticsearch
-
 # docker-compose -f /usr/local/docker/elasticsearch/docker-compose.yml up -d
 [+] Running 4/4
  ⠿ Container elasticsearch-setup  Healthy                                                                        2.2s
