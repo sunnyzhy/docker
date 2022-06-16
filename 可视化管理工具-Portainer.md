@@ -1,6 +1,22 @@
 # 可视化管理工具 - Portainer
 
-## 查看 Portainer 镜像
+## 前言
+
+- portainer 版本: ```portainer/portainer-ce:latest```
+
+- 网络配置: 驱动类型为 bridge，名称为 portainer
+
+- 容器与宿主机映射
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|
+    |portainer|-|8000:8000<br />9443:9443|192.168.204.107|/var/run/docker.sock:/var/run/docker.sock<br />portainer_data:/data|
+
+- 单节点启动:
+    ```bash
+    # docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+    ```
+
+## 拉取 portainer 镜像
 
 ```bash
 # docker search portainer | head -n 6
@@ -12,33 +28,107 @@ portainer/templates                    App Templates for Portainer http://portai
 portainer/portainer-ee                 Portainer BE - a fully featured service deli…   20
 
 # docker pull portainer/portainer-ce
+
+# docker images
+REPOSITORY                                      TAG       IMAGE ID       CREATED         SIZE
+portainer/portainer-ce                          latest    0df02179156a   6 months ago    273MB
 ```
 
 ***portainer/portainer 已经被标注为弃用。新版使用 portainer/portainer-ce***
 
-## 安装 Portainer
+## 创建网络
 
-新建一个卷 portainer_data 来存 Portainer 数据:
+```bash
+# docker network create portainer
+
+# docker network ls
+NETWORK ID     NAME                    DRIVER    SCOPE
+8e0137ef310b   portainer               bridge    local
+```
+
+## 创建 Docker 数据卷
 
 ```bash
 # docker volume create portainer_data
+
+# docker volume inspect portainer_data
+[
+    {
+        "CreatedAt": "2022-05-24T02:16:49-04:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/portainer_data/_data",
+        "Name": "portainer_data",
+        "Options": {},
+        "Scope": "local"
+    }
+]
 ```
 
-### 基于本地容器
-
-启动 Portainer:
+## 在宿主机上创建 portainer 目录
 
 ```bash
-# docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+# mkdir -p /usr/local/docker/portainer
 ```
 
-***端口 9443 默认启用 HTTPS*** ，用浏览器访问:
+## 配置 docker-compose.yml
+
+```bash
+# vim /usr/local/docker/portainer/docker-compose.yml
+```
+
+```yml
+version: '3.9'
+
+services:
+ portainer:
+  image: portainer/portainer-ce:latest
+  container_name: portainer
+  restart: always
+  volumes:
+   - /var/run/docker.sock:/var/run/docker.sock
+   - portainer_data:/data
+   - /etc/timezone/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
+  ports:
+   - 8000:8000
+   - 9443:9443
+  networks:
+    - portainer
+
+volumes:
+  portainer_data:
+   name: portainer_data
+   external: true
+
+networks:
+  portainer:
+    name: portainer
+```
+
+## 启动 docker-compose
+
+```bash
+# docker-compose -f /usr/local/docker/portainer/docker-compose.yml up -d
+[+] Running 1/1
+ ⠿ Container portainer  Started                                                                                  0.5s
+
+# docker ps
+CONTAINER ID   IMAGE                           COMMAND        CREATED          STATUS          PORTS                                                                                            NAMES
+22fca4d0c114   portainer/portainer-ce:latest   "/portainer"   21 seconds ago   Up 20 seconds   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 0.0.0.0:9443->9443/tcp, :::9443->9443/tcp, 9000/tcp   portainer
+```
+
+## 访问 portainer
+
+***注: 端口 9443 默认启用 HTTPS***
+
+用浏览器访问 ```https://$HOST_IP:9443```, 创建用户名/密码: ```admin/portainer```:
 
 ```
-https://$host:9443
+https://192.168.204.107:9443
 ```
 
-### 基于远程容器
+## 基于远程容器
 
 修改将要被远程连接的客户机的 docker.service 文件，开通 docker 的远程管理:
 
