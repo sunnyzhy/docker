@@ -670,7 +670,7 @@ CONTAINER ID   IMAGE                                COMMAND                  CRE
 
 ### 连接 mysql
 
-连接 ```HOST:33060/33061``` :
+连接 ```$HOST_IP:33060/33061``` :
 
 ```bash
 # mysql -uroot -proot -h192.168.204.107 -P33060
@@ -678,7 +678,7 @@ CONTAINER ID   IMAGE                                COMMAND                  CRE
 
 ### 访问 haproxy 监控界面
 
-连接 ```HOST:5050/5051``` :
+连接 ```$HOST_IP:5050/5051``` :
 
 ```bash
 # curl -XGET http://192.168.204.107:5050/monitor
@@ -954,7 +954,7 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
 
 ### 连接 mysql
 
-连接 ```VIP:3306``` :
+连接 ```$VIP:3306``` :
 
 ```bash
 # mysql -uroot -proot -h192.168.204.100 -P3306
@@ -962,11 +962,22 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
 
 ### 访问 haproxy 监控界面
 
-连接 ```VIP:18081``` :
+连接 ```$VIP:18081``` :
 
 ```bash
 # curl -XGET http://192.168.204.100:18081/monitor
 ```
+
+### FAQ
+
+#### IPVS: Can't initialize ipvs: Protocol not available
+
+- 解决方法
+
+   需要安装 ```ipvsadm```，命令行:
+   ```bash
+   # yum install -y ipvsadm
+   ```
 
 ## FAQ
 
