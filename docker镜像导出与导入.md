@@ -5,20 +5,20 @@
 - 命令格式
 
     ```bash
-    # docker save -o 文件名  镜像
+    # docker export 容器ID > 文件名
     ```
     或
     ```bash
-    # docker save > 文件名  镜像
+    # docker export 容器名称 > 文件名
     ```
 
 - 示例
 
     ```bash
-    # docker save -o /usr/local/docker/images/nginx.tar nginx:latest
+    # docker export e7d01f498fd4 > /usr/local/docker/containers/nginx.tar
     ```
     ```bash
-    # docker save > /usr/local/docker/images/nginx.tar nginx:latest
+    # docker export nginx > /usr/local/docker/containers/nginx.tar
     ```
 
 ## 导入
@@ -26,18 +26,11 @@
 - 命令格式
 
     ```bash
-    # docker load --input 文件名
-    ```
-    或
-    ```bash
-    # docker load < 文件名
+    # docker import 文件名 容器名称
     ```
 
 - 示例
 
     ```bash
-    # docker load --input /usr/local/docker/images/nginx.tar
-    ```
-    ```bash
-    # docker load < /usr/local/docker/images/nginx.tar
+    # docker import /usr/local/docker/containers/nginx.tar nginx
     ```
