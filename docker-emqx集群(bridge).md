@@ -495,7 +495,7 @@ c199651cf56b   emqx/emqx:latest         "/usr/bin/docker-ent…"   12 seconds ag
 
 ### 访问 dashboard
 
-可以访问任一连接: ```$HOST:18083/18084/18085```，用户名/密码: ```admin/public```:
+可以访问任一连接: ```$HOST_IP:18083/18084/18085```，用户名/密码: ```admin/public```:
 
 ```
 http://192.168.204.107:18083/
@@ -507,7 +507,7 @@ http://192.168.204.107:18083/
 
 ### MQTTX 连接配置 (SSL/TLS)
 
-连接: ```$HOST:8883/8884/8885```，用户名/密码: ```admin/admin```:
+连接: ```$HOST_IP:8883/8884/8885```，用户名/密码: ```admin/admin```:
 
 ![MQTTX 连接配置 (SSL/TLS)](./images/emqx/emqx-02.png 'MQTTX 连接配置 (SSL/TLS)')
 
@@ -752,11 +752,11 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 
 ### MQTTX 连接配置 (SSL/TLS)
 
-连接: ```$HOST:8882/8881```，用户名/密码: ```admin/admin```，证书配置同上。
+连接: ```$HOST_IP:8882/8881```，用户名/密码: ```admin/admin```，证书配置同上。
 
 ### 访问 haproxy 监控界面
 
-连接 ```HOST:5050/5051``` :
+连接 ```$HOST_IP:5050/5051``` :
 
 ```bash
 # curl -XGET http://192.168.204.107:5050/monitor
@@ -1100,12 +1100,23 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
 
 ### MQTTX 连接配置 (SSL/TLS)
 
-连接: ```VIP:8883```，用户名/密码: ```admin/admin```。
+连接: ```$VIP:8883```，用户名/密码: ```admin/admin```。
 
 ### 访问 haproxy 监控界面
 
-连接 ```VIP:18081``` :
+连接 ```$VIP:18081``` :
 
 ```bash
 # curl -XGET http://192.168.204.100:18081/monitor
 ```
+
+### FAQ
+
+#### IPVS: Can't initialize ipvs: Protocol not available
+
+- 解决方法
+
+   需要安装 ```ipvsadm```，命令行:
+   ```bash
+   # yum install -y ipvsadm
+   ```
