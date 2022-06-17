@@ -9,16 +9,16 @@
 - minio 集群
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |minio-1|192.168.7.11|18083:18083<br />1883:1883<br />8883:8883|192.168.204.107|/usr/local/docker/emqx/node-1/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-1/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-1/log:/opt/emqx/log|
-    |minio-2|192.168.7.12|18084:18083<br />1884:1883<br />8884:8883|192.168.204.107|/usr/local/docker/emqx/node-2/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-2/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-2/log:/opt/emqx/log|
-    |minio-3|192.168.7.13|18085:18083<br />1885:1883<br />8885:8883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
-    |minio-3|192.168.7.14|18085:18083<br />1885:1883<br />8885:8883|192.168.204.107|/usr/local/docker/emqx/node-3/etc:/opt/emqx/etc<br />/usr/local/docker/emqx/node-3/data\:/opt/emqx/data<br />/usr/local/docker/emqx/node-3/log:/opt/emqx/log|
+    |minio-1|192.168.7.11|9000:9000<br />9090:9090|192.168.204.107|/usr/local/docker/minio/config:/root/.minio<br />/usr/local/docker/minio/node/node-1/data-1:/data/data-1<br />/usr/local/docker/minio/node/node-1/data-2:/data/data-2<br />/usr/local/docker/minio/node/node-1/data-3:/data/data-3<br />/usr/local/docker/minio/node/node-1/data-4:/data/data-4|
+    |minio-2|192.168.7.12|9001:9000<br />9091:9090|192.168.204.107|/usr/local/docker/minio/config:/root/.minio<br />/usr/local/docker/minio/node/node-2/data-1:/data/data-1<br />/usr/local/docker/minio/node/node-2/data-2:/data/data-2<br />/usr/local/docker/minio/node/node-2/data-3:/data/data-3<br />/usr/local/docker/minio/node/node-2/data-4:/data/data-4|
+    |minio-3|192.168.7.13|9002:9000<br />9092:9090|192.168.204.107|/usr/local/docker/minio/config:/root/.minio<br />/usr/local/docker/minio/node/node-3/data-1:/data/data-1<br />/usr/local/docker/minio/node/node-3/data-2:/data/data-2<br />/usr/local/docker/minio/node/node-3/data-3:/data/data-3<br />/usr/local/docker/minio/node/node-3/data-4:/data/data-4|
+    |minio-3|192.168.7.14|9003:9000<br />9093:9090|192.168.204.107|/usr/local/docker/minio/config:/root/.minio<br />/usr/local/docker/minio/node/node-4/data-1:/data/data-1<br />/usr/local/docker/minio/node/node-4/data-2:/data/data-2<br />/usr/local/docker/minio/node/node-4/data-3:/data/data-3<br />/usr/local/docker/minio/node/node-4/data-4:/data/data-4|
 
 - Haproxy 双机热备
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|
-    |haproxy-1|192.168.5.20|1883:1883<br />8883:8883<br />18083:18083<br />5050:18081|192.168.204.107|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
-    |haproxy-2|192.168.5.21|1884:1883<br />8884:8883<br />18084:18083<br />5051:18081|192.168.204.107|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy-1|192.168.7.21|8999:9000<br />9089:9090<br />5050:18081|192.168.204.107|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy-2|192.168.7.22|8998:9000<br />9088:9090<br />5051:18081|192.168.204.107|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
 
 - Keepalived 双机热备
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
