@@ -19,6 +19,16 @@ services:                 # 定义所有的服务集合
         cache_from:       # 指定缓存的镜像列表，等同于 docker container build --cache_from
         labels:           # 设置镜像的元数据，等同于 docker container build --labels
         shm_size:         # 设置容器 /dev/shm 分区的大小，等同于 docker container build --shm-size
+                          示例: 可以是绝对路径也可以是相对路径
+                          build: ./dir
+                          ----------------------------------
+                          build:
+                            context: ./dir
+                          ----------------------------------
+                          build:
+                            context: ./
+                            dockerfile: Dockerfile-alternate  # 如果 dockerfile 文件名不是默认名，需要指定
+        
     cap_add:              # 添加访问权限，是对 privileged: true 的最高权限的细化
                           示例:
                           cap_add:              # 等同于 privileged: true
