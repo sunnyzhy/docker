@@ -4,6 +4,8 @@
 
 docker-compose.yml 组成一个 project ，project 里包括多个 service，每个 service 定义了容器运行的镜像（或构建镜像），网络端口，文件挂载，参数，依赖等，每个 service 可包括同一个镜像的多个容器实例。
 
+***注: 每个服务必须定义 image 或者 build 中的一个，其它项是可选项；即每个服务都必须通过 image 指令指定镜像或 build 指令（需要 Dockerfile）自动构建生成镜像。***
+
 ## docker-compose.yml 详解
 
 [官网compose-file](https://docs.docker.com/compose/compose-file 'compose-file')
