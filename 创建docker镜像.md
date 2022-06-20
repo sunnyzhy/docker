@@ -133,6 +133,15 @@ demo-0.0.1.jar  Dockerfile
 # docker-compose -f /usr/local/docker/app/docker-compose.yml up -d
 ```
 
+## 查看宿主机日志
+
+```bash
+# ls /usr/local/docker/app/demo/log
+run.log
+
+# tail -f /usr/local/docker/app/demo/log/run.log 
+```
+
 ## 查看镜像
 
 ``` bash
