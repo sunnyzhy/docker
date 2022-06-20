@@ -41,3 +41,15 @@
     ```bash
     # docker load < /usr/local/docker/images/nginx.tar
     ```
+
+## 批量导出
+
+```bash
+# docker save $(docker images | grep -v REPOSITORY | awk 'BEGIN{OFS=":";ORS=" "}{print $1,$2}') -o images.tar
+```
+
+## 批量导入
+
+```bash
+docker load -i images.tar
+```
