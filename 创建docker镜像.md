@@ -45,7 +45,7 @@ COPY ./demo-0.0.1.jar ./demo-0.0.1.jar
 
 CMD java -jar ${JAVA_OPTS} ./demo-0.0.1.jar
 
-EXPOSE 8081
+EXPOSE 8080
 ```
 
 ```bash
@@ -80,7 +80,7 @@ Step 5/6 : CMD java -jar ${JAVA_OPTS} /usr/local/app/demo/demo-0.0.1.jar
  ---> Running in 355f435acc60
 Removing intermediate container 355f435acc60
  ---> 05d91b958797
-Step 6/6 : EXPOSE 8088
+Step 6/6 : EXPOSE 8080
  ---> Running in 4276e4c4afc2
 Removing intermediate container 4276e4c4afc2
  ---> 7709d3bbc4dc
@@ -91,7 +91,7 @@ Successfully tagged demo:0.0.1
 #### 创建容器并运行
 
 ``` bash
-# docker run -d -p 8081:8081 --name demo -v /usr/local/docker/app/demo/log:/usr/local/app/demo/log demo:0.0.1
+# docker run -d -p 8080:8080 --name demo -v /usr/local/docker/app/demo/log:/usr/local/app/demo/log demo:0.0.1
 ```
 
 ### 用 docker-compose 创建镜像
@@ -116,7 +116,7 @@ services:
    - /etc/timezone/timezone:/etc/timezone
    - /etc/localtime:/etc/localtime
   ports:
-   - 8081:8081
+   - 8080:8080
 ```
 
 ```bash
@@ -155,5 +155,5 @@ demo                                            0.0.1     7709d3bbc4dc   2 minut
 ``` bash
 # docker ps
 CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS          PORTS                                                                                            NAMES
-a6c804538506   demo:0.0.1                      "/bin/sh -c 'java -j…"   20 seconds ago   Up 18 seconds   0.0.0.0:8081->8081/tcp, :::8081->8081/tcp                                                        demo
+a6c804538506   demo:0.0.1                      "/bin/sh -c 'java -j…"   20 seconds ago   Up 18 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp                                                        demo
 ```
