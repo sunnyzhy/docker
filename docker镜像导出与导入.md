@@ -48,6 +48,16 @@
 # docker save $(docker images | grep -v REPOSITORY | awk 'BEGIN{OFS=":";ORS=" "}{print $1,$2}') -o images.tar
 ```
 
+- 批量导出以 ```hello-``` 开头的镜像
+    ```bash
+    docker save $(docker images | grep hello-* | awk 'BEGIN{OFS=":";ORS=" "}{print $1,$2}') -o images.tar
+    ```
+
+- 批量导出不以 ```hello-``` 开头的镜像
+    ```bash
+    docker save $(docker images | grep -v hello-* | awk 'BEGIN{OFS=":";ORS=" "}{print $1,$2}') -o images.tar
+    ```
+
 ## 批量导入
 
 ```bash
