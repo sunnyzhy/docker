@@ -47,7 +47,32 @@
     }
     ```
 
-- nginx.conf 里配置反向代理时，localhost 或 127.0.0.1 应明确为宿主机 ip
+- nginx.conf 配置注意事项:
+    ```conf
+        server {
+            listen       80; # listen   443 ssl;
+            server_name  192.168.204.107; # server_name 应明确为宿主机 ip
+            location / {
+                root   /usr/share/nginx/html; # root 应为绝对路径
+                index  index.html index.htm;
+            }
+
+            location /upload {
+                alias /usr/share/nginx/upload; # 同理，alias 应为绝对路径
+                autoindex on;
+            }
+
+            location /api {
+                proxy_pass http://192.168.204.107:8765; # proxy_pass 应明确为宿主机 ip
+                proxy_set_header host $host;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header referer "-";
+
+                proxy_redirect default;
+            }
+        }
+    ```
 
 ## 拉取 nginx 镜像
 
