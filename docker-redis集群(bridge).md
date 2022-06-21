@@ -16,6 +16,16 @@
     |redis-5|192.168.0.15|6379|192.168.204.107|6375|/usr/local/docker/redis/node-5|
     |redis-6|192.168.0.16|6379|192.168.204.107|6376|/usr/local/docker/redis/node-6|
 
+- 单节点启动（设置认证密码）:
+    ```bash
+    # docker run -d -p 6379:6379 --name redis --network redis --ip 192.168.0.11 -v /usr/local/docker/redis/node/data:/data redis
+
+    # docker exec -it redis /bin/sh
+
+    # redis-cli
+    127.0.0.1:6379> config set requirepass admin
+    ```
+
 ## 拉取 redis 镜像
 
 ```bash
