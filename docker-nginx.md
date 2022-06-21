@@ -47,6 +47,8 @@
     }
     ```
 
+- nginx.conf 里配置反向代理时，localhost 或 127.0.0.1 应明确为宿主机 ip
+
 ## 拉取 nginx 镜像
 
 ```bash
