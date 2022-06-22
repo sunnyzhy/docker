@@ -394,7 +394,7 @@ services:
   environment:
    FTP_USER: admin
    FTP_PASS: admin
-   PASV_ADDRESS: 192.168.204.107
+   PASV_ADDRESS: 192.168.204.107   # PASV_ADDRESS 应明确为宿主机 ip
   ports:
    - 20:20
    - 21:21
