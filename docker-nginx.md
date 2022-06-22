@@ -2,14 +2,16 @@
 
 ## 前言
 
-- nginx 版本: ```nginx:latest```
+- 技术栈: ```nginx + ftp```，ftp 主要用于接收客户端上传的文件并与 nginx 共享宿主机的挂载目录
+
+- nginx 版本: ```nginx:latest```; ftp 版本: ```bogem/ftp:latest```
 
 - 网络配置: 驱动类型为 bridge，名称为 nginx
 
-- 容器与宿主机映射
-    |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载(宿主机的配置文件:容器的配置文件)|
+- nginx 容器与宿主机映射
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|--|
-    |nginx|192.168.2.10|80|192.168.204.107|80|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf<br />/usr/local/docker/nginx/html:/usr/share/nginx/html<br />/usr/local/docker/nginx/logs:/var/log/nginx|
+    |nginx|192.168.2.10|80:80|192.168.204.107|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf<br />/usr/local/docker/nginx/upload:/usr/local/upload<br />/usr/local/docker/nginx/html:/usr/share/nginx/html<br />/usr/local/docker/nginx/logs:/var/log/nginx|
 
 - nginx:latest 镜像配置文件 nginx.conf
     ```conf
@@ -74,7 +76,21 @@
         }
     ```
 
-## 拉取 nginx 镜像
+- ftp 容器与宿主机映射
+    |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
+    |--|--|--|--|--|--|
+    |ftp|192.168.2.11|20:20<br />21:21<br />47400-47470:47400-47470<br />|192.168.204.107|/usr/local/docker/nginx/upload:/home/vsftpd|
+
+
+注: 
+
+1. ftp 和 nginx 部署在同一个宿主机里
+2. ftp 挂载的宿主机目录和 nginx 挂载的宿主机目录相同
+3. ftp 客户端上传的文件可以通过 nginx 访问
+
+## 安装 nginx
+
+### 拉取 nginx 镜像
 
 ```bash
 # docker pull nginx:latest
@@ -84,7 +100,7 @@ REPOSITORY               TAG       IMAGE ID       CREATED        SIZE
 nginx                    latest    605c77e624dd   4 months ago   141MB
 ```
 
-## 创建网络
+### 创建网络
 
 ```bash
 # docker network create nginx --subnet 192.168.2.0/24 --gateway=192.168.2.1
@@ -126,7 +142,7 @@ NETWORK ID     NAME            DRIVER    SCOPE
 ]
 ```
 
-## 在宿主机上创建 nginx 目录
+### 在宿主机上创建 nginx 目录
 
 ```bash
 # docker run --name nginx --net nginx -p 80:80 -d nginx:latest
@@ -218,7 +234,7 @@ Commercial support is available at
 conf  html  logs
 ```
 
-## 配置 docker-compose.yml
+### 配置 docker-compose.yml
 
 ```bash
 # vim /usr/local/docker/nginx/docker-compose.yml
@@ -248,7 +264,7 @@ networks:
     name: nginx
 ```
 
-## 启动 docker-compose
+### 启动 docker-compose
 
 ```bash
 # docker stop nginx
@@ -264,7 +280,7 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 93a18489fe0f   nginx:latest             "/docker-entrypoint.…"   23 seconds ago      Up 22 seconds      0.0.0.0:80->80/tcp, :::80->80/tcp                                                                nginx
 ```
 
-## 查看网络
+### 查看网络
 
 ```bash
 # docker network inspect nginx
@@ -308,11 +324,11 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 ]
 ```
 
-## 访问 nginx
+### 访问 nginx
 
 可以访问:
 
-1. 在任一物理机访问 ```$HOST:80```:
+1. 在任一物理机访问 ```$HOST_IP:80```:
    ```bash
    # curl -XGET http://192.168.204.107
    ```
@@ -321,9 +337,9 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
    # curl -XGET http://192.168.2.10
    ```
 
-## FAQ
+### FAQ
 
-### directory index of "/usr/share/nginx/html/" is forbidden
+#### directory index of "/usr/share/nginx/html/" is forbidden
 
 - 原因
    1. ```/usr/share/nginx/html``` 下面没有 ```index.html index.htm```
@@ -338,3 +354,75 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
         index  index.html index.htm;
       }
       ```
+
+## 安装 ftp
+
+### 拉取 ftp 镜像
+
+```bash
+# docker pull bogem/ftp
+
+# docker images
+REPOSITORY                                      TAG           IMAGE ID       CREATED         SIZE
+bogem/ftp                                       latest        a40e9c43c530   5 years ago     175MB
+```
+
+### 在宿主机上创建 ftp 目录
+
+```bash
+# mkdir -p /usr/local/docker/ftp
+```
+
+### 配置 docker-compose.yml
+
+```bash
+# vim /usr/local/docker/ftp/docker-compose.yml
+```
+
+```yml
+version: '3.9'
+
+services:
+ ftp:
+  image: bogem/ftp:latest
+  container_name: ftp
+  restart: always
+  volumes:
+   - /usr/local/docker/nginx/upload:/home/vsftpd
+   - /etc/timezone/timezone:/etc/timezone
+   - /etc/localtime:/etc/localtime
+  environment:
+   FTP_USER: admin
+   FTP_PASS: admin
+   PASV_ADDRESS: 192.168.204.107
+  ports:
+   - 20:20
+   - 21:21
+   - 47400-47470:47400-47470
+  networks:
+    nginx:
+      ipv4_address: 192.168.2.11
+networks:
+  nginx:
+    name: nginx
+```
+
+### 启动 docker-compose
+
+```bash
+# docker-compose -f /usr/local/docker/ftp/docker-compose.yml up -d
+[+] Running 1/1
+ ⠿ Container ftp  Started                                                                                        4.4s
+
+# docker ps
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS          PORTS                                                                                                                  NAMES
+d12e72ffe24d   bogem/ftp:latest                "/usr/sbin/run-vsftp…"   27 seconds ago   Up 22 seconds   0.0.0.0:20-21->20-21/tcp, :::20-21->20-21/tcp, 0.0.0.0:47400-47470->47400-47470/tcp, :::47400-47470->47400-47470/tcp   ftp
+```
+
+### 访问 ftp
+
+在文件资源管理器的地址栏访问 ```ftp://$HOST_IP:21```, 用户名/密码: ```admin/admin``` :
+
+```
+ftp://192.168.204.107:21
+```
