@@ -9,6 +9,7 @@
 - 网络配置: 驱动类型为 bridge，名称为 nginx
 
 - nginx 容器与宿主机映射
+
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|--|
     |nginx|192.168.2.10|80:80|192.168.204.107|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf<br />/usr/local/docker/nginx/upload:/usr/local/upload<br />/usr/local/docker/nginx/html:/usr/share/nginx/html<br />/usr/local/docker/nginx/logs:/var/log/nginx|
@@ -77,6 +78,7 @@
     ```
 
 - ftp 容器与宿主机映射
+
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|--|--|
     |ftp|192.168.2.11|20:20<br />21:21<br />47400-47470:47400-47470<br />|192.168.204.107|/usr/local/docker/nginx/upload:/home/vsftpd|
@@ -250,6 +252,7 @@ services:
   restart: always
   volumes:
    - /usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+   - /usr/local/docker/nginx/upload:/usr/local/upload
    - /usr/local/docker/nginx/html:/usr/share/nginx/html
    - /usr/local/docker/nginx/logs:/var/log/nginx
    - /etc/timezone/timezone:/etc/timezone
