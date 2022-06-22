@@ -11,7 +11,7 @@
 - nginx 容器与宿主机映射
 
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
-    |--|--|--|--|--|--|
+    |--|--|--|--|--|
     |nginx|192.168.2.10|80:80|192.168.204.107|/usr/local/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf<br />/usr/local/docker/nginx/upload:/usr/local/upload<br />/usr/local/docker/nginx/html:/usr/share/nginx/html<br />/usr/local/docker/nginx/logs:/var/log/nginx|
 
 - nginx:latest 镜像配置文件 nginx.conf
@@ -61,7 +61,7 @@
             }
 
             location /upload {
-                alias /usr/share/nginx/upload; # 同理，alias 应为绝对路径
+                alias /usr/local/upload; # 同理，alias 应为绝对路径
                 autoindex on;
             }
 
@@ -80,7 +80,7 @@
 - ftp 容器与宿主机映射
 
     |容器名称|容器IP|端口映射(宿主机端口:容器端口)|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
-    |--|--|--|--|--|--|
+    |--|--|--|--|--|
     |ftp|192.168.2.11|20:20<br />21:21<br />47400-47470:47400-47470<br />|192.168.204.107|/usr/local/docker/nginx/upload:/home/vsftpd|
 
 
@@ -157,6 +157,7 @@ NETWORK ID     NAME            DRIVER    SCOPE
 ```
 
 ```conf
+
 user  nginx;
 worker_processes  auto;
 
@@ -187,13 +188,18 @@ http {
     #gzip  on;
 
     include /etc/nginx/conf.d/*.conf;
-    
+
     server {
         listen       80; # listen   443 ssl;
-        server_name  www.docker.zy;
+        server_name  192.168.204.107;
         location / {
-            root   html;
+            root   /usr/share/nginx/html;
             index  index.html index.htm;
+        }
+
+        location /upload {
+            alias /usr/local/upload;
+            autoindex on;
         }
     }
 }
