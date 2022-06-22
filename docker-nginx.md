@@ -2,7 +2,7 @@
 
 ## 前言
 
-- 技术栈: ```nginx + ftp```，ftp 主要用于接收客户端上传的文件并与 nginx 共享宿主机的挂载目录
+- 技术栈: ```nginx + ftp```，***ftp 主要用于接收客户端上传的文件并与 nginx 共享宿主机的挂载目录***
 
 - nginx 版本: ```nginx:latest```; ftp 版本: ```bogem/ftp:latest```
 
@@ -82,7 +82,7 @@
     |ftp|192.168.2.11|20:20<br />21:21<br />47400-47470:47400-47470<br />|192.168.204.107|/usr/local/docker/nginx/upload:/home/vsftpd|
 
 
-注: 
+***注: ***
 
 1. ftp 和 nginx 部署在同一个宿主机里
 2. ftp 挂载的宿主机目录和 nginx 挂载的宿主机目录相同
