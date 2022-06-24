@@ -25,6 +25,10 @@
     |keepalived-master|-|-|192.168.204.107|/usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
     |keepalived-backup|-|-|192.168.204.107|/usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
 
+- emqx 负载均衡官网(Haproxy/Nginx): [Haproxy/Nginx负载均衡](https://www.emqx.io/docs/zh/v4.4/tutorial/deploy.html 'Haproxy/Nginx负载均衡')
+
+   注: [haproxy 合并生成证书](https://www.emqx.com/zh/blog/emqx-haproxy 'haproxy 合并生成证书')
+
 ### 启动 emqx 集群的方式
 
 ***以 emqx-1 节点为例。***
@@ -577,6 +581,8 @@ for index in $(seq 1 2);
 do
 mkdir -p /usr/local/docker/haproxy/node-${index}/{config,certs/emqx}
 
+> /usr/local/docker/haproxy/node-${index}/certs/emqx/emqx.pem
+
 ## 合并 emqx.key 和 emqx.pem, 生成新的 emqx.pem 文件
 cat /usr/local/docker/ca/emqx.pem /usr/local/docker/ca/emqx.key > /usr/local/docker/haproxy/node-${index}/certs/emqx/emqx.pem
 
@@ -646,9 +652,9 @@ listen  proxy-emqx-ssl
         balance  source
         #日志格式
         option  tcplog
-        server  emqx-ssl-1 192.168.5.10:8883 check inter 10000 fall 2 rise 5 weight 1
-        server  emqx-ssl-2 192.168.5.11:8883 check inter 10000 fall 2 rise 5 weight 1
-        server  emqx-ssl-3 192.168.5.12:8883 check inter 10000 fall 2 rise 5 weight 1
+        server  emqx-ssl-1 192.168.5.10:1883 check inter 10000 fall 2 rise 5 weight 1
+        server  emqx-ssl-2 192.168.5.11:1883 check inter 10000 fall 2 rise 5 weight 1
+        server  emqx-ssl-3 192.168.5.12:1883 check inter 10000 fall 2 rise 5 weight 1
         #使用keepalive检测死链
         option  tcpka
 listen  proxy-emqx-monitor
@@ -787,6 +793,14 @@ networks:
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                                                                                                                                                                                                             NAMES
 6b862b2068da   haproxy:latest           "docker-entrypoint.s…"   13 seconds ago   Up 10 seconds   0.0.0.0:1882->1883/tcp, :::1882->1883/tcp, 0.0.0.0:8882->8883/tcp, :::8882->8883/tcp, 0.0.0.0:5050->18081/tcp, :::5050->18081/tcp, 0.0.0.0:18082->18083/tcp, :::18082->18083/tcp                                  haproxy-1
 91a364b9627b   haproxy:latest           "docker-entrypoint.s…"   13 seconds ago   Up 10 seconds   0.0.0.0:1881->1883/tcp, :::1881->1883/tcp, 0.0.0.0:8881->8883/tcp, :::8881->8883/tcp, 0.0.0.0:5051->18081/tcp, :::5051->18081/tcp, 0.0.0.0:18081->18083/tcp, :::18081->18083/tcp                                  haproxy-2
+```
+
+### 访问 emqx-dashboard
+
+可以访问任一连接: ```$HOST_IP:18082/18081```，用户名/密码: ```admin/public```:
+
+```
+http://192.168.204.107:18082/
 ```
 
 ### MQTTX 连接配置 (SSL/TLS)
@@ -1135,6 +1149,14 @@ e63635c59da9   osixia/keepalived:latest             "/container/tool/run"    39 
        valid_lft forever preferred_lft forever
     inet6 fe80::ed8d:b0e:23a3:cee4/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever
+```
+
+### 访问 emqx-dashboard
+
+可以访问任一连接: ```$VIP:18083```，用户名/密码: ```admin/public```:
+
+```
+http://192.168.204.100:18083/
 ```
 
 ### MQTTX 连接配置 (SSL/TLS)
