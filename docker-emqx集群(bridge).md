@@ -25,6 +25,38 @@
     |keepalived-master|-|-|192.168.204.107|/usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
     |keepalived-backup|-|-|192.168.204.107|/usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
 
+### 启动 emqx 集群的方式
+
+***以 emqx-1 节点为例。***
+
+- 修改 emqx.conf:
+   ```conf
+   allow_anonymous = false
+   cluster.discovery = static
+   node.name = emqx-1@192.168.5.10
+   cluster.static.seeds = emqx-1@192.168.5.10,emqx-2@192.168.5.11,emqx-3@192.168.5.12
+   listener.ssl.external.keyfile = /opt/emqx/etc/certs/emqx.key
+   listener.ssl.external.certfile = /opt/emqx/etc/certs/emqx.pem
+   listener.ssl.external.cacertfile = /opt/emqx/etc/certs/ca.pem
+   listener.ssl.external.verify = verify_peer
+   listener.ssl.external.fail_if_no_peer_cert = true
+   ```
+- 配置环境变量
+   ```yml
+     environment:
+      - EMQX_NAME=emqx-1
+      - EMQX_HOST=192.168.5.10
+      - EMQX_ALLOW__ANONYMOUS=false
+      - EMQX_CLUSTER__DISCOVERY=static
+      - EMQX_NODE__NAME=emqx-1@192.168.5.10
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx-1@192.168.5.10,emqx-2@192.168.5.11,emqx-3@192.168.5.12
+      - EMQX_LISTENER__SSL__EXTERNAL__KEYFILE=/opt/emqx/etc/certs/emqx.key
+      - EMQX_LISTENER__SSL__EXTERNAL__CERTFILE=/opt/emqx/etc/certs/emqx.pem
+      - EMQX_LISTENER__SSL__EXTERNAL__CACERTFILE=/opt/emqx/etc/certs/ca.pem
+      - EMQX_LISTENER__SSL__EXTERNAL__VERIFY=verify_peer
+      - EMQX_LISTENER__SSL__EXTERNAL__FAIL_IF_NO_PEER_CERT=true
+```
+
 ## 拉取 emqx 镜像
 
 ```bash
@@ -543,7 +575,11 @@ haproxy                          latest    575a5788d81a   5 months ago    101MB
 #!/bin/sh
 for index in $(seq 1 2);
 do
-mkdir -p /usr/local/docker/haproxy/node-${index}/config
+mkdir -p /usr/local/docker/haproxy/node-${index}/{config,certs/emqx}
+
+## 合并 emqx.key 和 emqx.pem, 生成新的 emqx.pem 文件
+cat /usr/local/docker/ca/emqx.pem /usr/local/docker/ca/emqx.key > /usr/local/docker/haproxy/node-${index}/certs/emqx/emqx.pem
+
 > /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg
 cat << EOF >> /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg
 global
@@ -599,7 +635,7 @@ listen  proxy-emqx-tcp
         option  tcpka
 listen  proxy-emqx-ssl
         #访问的IP和端口
-        bind  0.0.0.0:8883
+        bind  0.0.0.0:8883 ssl crt /etc/ssl/emqx/emqx.pem no-sslv3
         #网络协议
         mode  tcp
         #负载均衡算法（轮询算法）
@@ -607,12 +643,12 @@ listen  proxy-emqx-ssl
         #权重算法：static-rr
         #最少连接算法：leastconn
         #请求源IP算法：source
-        balance  roundrobin
+        balance  source
         #日志格式
         option  tcplog
-        server  emqx-ssl-1 192.168.5.10:8883 check weight 1 maxconn 2000
-        server  emqx-ssl-2 192.168.5.11:8883 check weight 1 maxconn 2000
-        server  emqx-ssl-3 192.168.5.12:8883 check weight 1 maxconn 2000
+        server  emqx-ssl-1 192.168.5.10:8883 check inter 10000 fall 2 rise 5 weight 1
+        server  emqx-ssl-2 192.168.5.11:8883 check inter 10000 fall 2 rise 5 weight 1
+        server  emqx-ssl-3 192.168.5.12:8883 check inter 10000 fall 2 rise 5 weight 1
         #使用keepalive检测死链
         option  tcpka
 listen  proxy-emqx-monitor
@@ -671,6 +707,7 @@ cat << EOF >> /usr/local/docker/haproxy/docker-compose.yml
   restart: always
   volumes:
    - /usr/local/docker/haproxy/node-${index}/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+   - /usr/local/docker/haproxy/node-${index}/certs/emqx:/etc/ssl/emqx
   ports:
    - $(expr 1883 - ${index}):1883
    - $(expr 8883 - ${index}):8883
@@ -709,6 +746,7 @@ services:
   restart: always
   volumes:
    - /usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+   - /usr/local/docker/haproxy/node-1/certs/emqx:/etc/ssl/emqx
   ports:
    - 1882:1883
    - 8882:8883
@@ -723,6 +761,7 @@ services:
   restart: always
   volumes:
    - /usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+   - /usr/local/docker/haproxy/node-2/certs/emqx:/etc/ssl/emqx
   ports:
    - 1881:1883
    - 8881:8883
