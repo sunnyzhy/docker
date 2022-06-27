@@ -604,9 +604,9 @@ defaults
         #连接超时（毫秒）
 	timeout connect 5000
         #客户端超时（毫秒）
-	timeout client  50000
+	#timeout client  50000
 	#服务器超时（毫秒）
-        timeout server  50000
+        #timeout server  50000
 
 #监控界面
 listen  admin_stats
@@ -1180,4 +1180,30 @@ http://192.168.204.100:18083/
    需要安装 ```ipvsadm```，命令行:
    ```bash
    # yum install -y ipvsadm
+   ```
+
+## FAQ
+
+### haproxy 负载均衡出现定时断开现象(50秒)
+
+- 原因
+   
+   haproxy会对没有消息的连接进行主动断开，默认配置如下:
+   ```
+   defaults
+           #客户端超时（毫秒）
+           timeout client  50000
+           #服务器超时（毫秒）
+           timeout server  50000
+   ```
+
+- 解决方法
+
+   注释或删除相关的默认配置项:
+   ```
+   defaults
+           #客户端超时（毫秒）
+           #timeout client  50000
+           #服务器超时（毫秒）
+           #timeout server  50000
    ```
