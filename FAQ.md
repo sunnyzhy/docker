@@ -31,3 +31,21 @@
         - /etc/timezone/timezone:/etc/timezone
         - /etc/localtime:/etc/localtime
       ```
+
+## image has dependent child images
+
+```
+Error response from daemon: conflict: unable to delete 镜像ID (cannot be forced) - image has dependent child images
+```
+
+- 原因
+
+   该镜像被别的镜像所依赖，不能强制删除
+
+- 解决办法
+   
+   ```bash
+   # docker image inspect --format='{{.RepoTags}} {{.Id}} {{.Parent}}' $(docker image ls -q --filter since=镜像ID)
+   ```
+   查找 child images，再逐个删除
+
