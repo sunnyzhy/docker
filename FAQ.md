@@ -49,3 +49,42 @@ Error response from daemon: conflict: unable to delete 镜像ID (cannot be force
    ```
    查找 child images，再逐个删除
 
+## 无法删除镜像 Error：No such image：镜像ID
+
+```bash
+# docker images -a
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+hello-world   latest    feb5d9fea6a5   9 months ago   13.3kB
+
+# docker rmi feb5d9fea6a5
+Error: No such image: feb5d9fea6a5
+```
+
+解决方法:
+
+1. 查找 ```镜像ID=feb5d9fea6a5``` 的文件id
+    ```bash
+    # docker image inspect feb5d9fea6a5 | sed 's/,/\n/g' | grep "Id" | sed 's/:/\n/g' | sed '1d' | sed 's/"//g' | sed '1d'
+    feb5d9fea6a5e9606aa995e879d862b825965ba48de054caab5ef356dc6b3412
+    ```
+
+2. 删除 id 是 ```feb5d9fea6a5e9606aa995e879d862b825965ba48de054caab5ef356dc6b3412``` 的文件
+    ```bash
+    # ls /var/lib/docker/image/overlay2/imagedb/content/sha256
+    605c77e624ddb75e6110f997c58876baa13f8754486b461117934b24a9dc3a85
+    d23bdf5b1b1b1afce5f1d0fd33e7ed8afbc084b594b9ccf742a5b27080d8a4a8
+    feb5d9fea6a5e9606aa995e879d862b825965ba48de054caab5ef356dc6b3412
+
+    # rm -rf /var/lib/docker/image/overlay2/imagedb/content/sha256/feb5d9fea6a5e9606aa995e879d862b825965ba48de054caab5ef356dc6b3412
+
+    # ls /var/lib/docker/image/overlay2/imagedb/content/sha256
+    605c77e624ddb75e6110f997c58876baa13f8754486b461117934b24a9dc3a85
+    d23bdf5b1b1b1afce5f1d0fd33e7ed8afbc084b594b9ccf742a5b27080d8a4a8
+
+    # docker images -a
+    REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+    ```
+    或
+    ```bash
+    # rm -rf /var/lib/docker/image/overlay2/imagedb/content/sha256/$(docker image inspect feb5d9fea6a5 | sed 's/,/\n/g' | grep "Id" | sed 's/:/\n/g' | sed '1d' | sed 's/"//g' | sed '1d')
+    ```
