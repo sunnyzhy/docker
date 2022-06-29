@@ -88,3 +88,12 @@ Error: No such image: feb5d9fea6a5
     ```bash
     # rm -rf /var/lib/docker/image/overlay2/imagedb/content/sha256/$(docker image inspect feb5d9fea6a5 | sed 's/,/\n/g' | grep "Id" | sed 's/:/\n/g' | sed '1d' | sed 's/"//g' | sed '1d')
     ```
+
+3. ***终极解决方法:***
+    ```bash
+    # systemctl stop docker
+
+    # rm -rf /var/lib/docker
+
+    # systemctl start docker
+    ```
