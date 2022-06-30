@@ -260,6 +260,47 @@ gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
 ```
 
+## 修改 docker 的数据存储路径
+
+docker 的数据存储路径默认是 ```/var/lib/docker```
+
+1. 查看当前 docker 的数据存储路径
+    ```bash
+    # docker info | grep Dir
+     Docker Root Dir: /var/lib/docker
+    ```
+
+2. 停止 docker 服务
+    ```bash
+    # systemctl stop docker
+    ```
+
+3. 在 docker.service 里使用 ```--data-root``` 参数指定 docker 的数据存储位置
+    ```bash
+    # vim /usr/lib/systemd/system/docker.service
+    ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root=/home/lib/docker 
+    ```
+
+4. 把 ```/var/lib/docker``` 迁移至 ```/home/lib/docker```
+    ```bash
+    # rsync -avzP /var/lib/docker /home/lib
+
+    # rm -rf /var/lib/docker
+    ```
+
+5. 启动 docker 服务
+    ```bash
+    # systemctl daemon-reload
+
+    # systemctl start docker
+    ```
+
+6. 查看当前 docker 的数据存储路径
+    ```bash
+    # docker info | grep Dir
+     Docker Root Dir: /home/lib/docker
+    ```
+
 ## 修改容器内的 apt-get 源
 
 1. 进入容器
