@@ -51,6 +51,8 @@ Docker version 20.10.16, build aa7e414
 需要先注册阿里云的开发者账号 ```https://dev.aliyun.com/search.html```，然后记下加速器地址。
 
 ``` bash
+# mkdir -p /etc/docker
+
 # vim /etc/docker/daemon.json
 {
   "registry-mirrors": ["https://6848w7y3.mirror.aliyuncs.com"]
