@@ -16,6 +16,11 @@
     |redis-5|192.168.204.107|6375|/usr/local/docker/redis/node-5|
     |redis-6|192.168.204.107|6376|/usr/local/docker/redis/node-6|
 
+- redis.conf:
+   ```bash
+   # wget -P /usr/local/docker/redis http://download.redis.io/redis-stable/redis.conf
+   ```
+
 ## 拉取 redis 镜像
 
 ```bash
