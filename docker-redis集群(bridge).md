@@ -26,6 +26,11 @@
     127.0.0.1:6379> config set requirepass admin
     ```
 
+- redis.conf:
+   ```bash
+   # wget -P /usr/local/docker/redis http://download.redis.io/redis-stable/redis.conf
+   ```
+
 ## 拉取 redis 镜像
 
 ```bash
