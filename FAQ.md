@@ -97,3 +97,15 @@ Error: No such image: feb5d9fea6a5
 
     # systemctl start docker
     ```
+
+### Bind for 0.0.0.0:$PORT failed: port is already allocated
+
+解决方法:
+
+```bash
+# systemctl stop docker
+
+# rm -rf /var/lib/docker/network/files/local-kv.db
+
+# systemctl start docker
+```
