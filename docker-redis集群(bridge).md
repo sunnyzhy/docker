@@ -9,12 +9,12 @@
 - 启动六个 redis
     |容器名称|容器IP|容器的端口|宿主机IP|映射到宿主机的端口|挂载宿主机的配置文件和数据文件|
     |--|--|--|--|--|--|
-    |redis-1|192.168.0.11|6379|192.168.204.107|6371|/usr/local/docker/redis/node-1|
-    |redis-2|192.168.0.12|6379|192.168.204.107|6372|/usr/local/docker/redis/node-2|
-    |redis-3|192.168.0.13|6379|192.168.204.107|6373|/usr/local/docker/redis/node-3|
-    |redis-4|192.168.0.14|6379|192.168.204.107|6374|/usr/local/docker/redis/node-4|
-    |redis-5|192.168.0.15|6379|192.168.204.107|6375|/usr/local/docker/redis/node-5|
-    |redis-6|192.168.0.16|6379|192.168.204.107|6376|/usr/local/docker/redis/node-6|
+    |redis-1|192.168.0.11|6379|192.168.204.107|6371|/usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-1/data\:/data<br />/usr/local/docker/redis/node-1/log:/var/log/redis|
+    |redis-2|192.168.0.12|6379|192.168.204.107|6372|/usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-2/data\:/data<br />/usr/local/docker/redis/node-2/log:/var/log/redis|
+    |redis-3|192.168.0.13|6379|192.168.204.107|6373|/usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-3/data\:/data<br />/usr/local/docker/redis/node-3/log:/var/log/redis|
+    |redis-4|192.168.0.14|6379|192.168.204.107|6374|/usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-4/data\:/data<br />/usr/local/docker/redis/node-4/log:/var/log/redis|
+    |redis-5|192.168.0.15|6379|192.168.204.107|6375|/usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-5/data\:/data<br />/usr/local/docker/redis/node-5/log:/var/log/redis|
+    |redis-6|192.168.0.16|6379|192.168.204.107|6376|/usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf<br />/usr/local/docker/redis/node-6/data\:/data<br />/usr/local/docker/redis/node-6/log:/var/log/redis|
 
 - 单节点启动（设置认证密码）:
     ```bash
@@ -26,10 +26,25 @@
     127.0.0.1:6379> config set requirepass admin
     ```
 
-- redis.conf:
-   ```bash
-   # wget -P /usr/local/docker/redis http://download.redis.io/redis-stable/redis.conf
-   ```
+- ```--cluster-replicas 1```: 表示 ```主节点数和从节点数的比例等于 1``` 。在创建集群的时候，将按照 ```IP:PORT``` 的顺序，先生成 3 个主节点，再生成 3 个从节点。
+
+- 拉取 redis.conf
+   - 当前版本 redis.conf:
+      ```bash
+      # docker image inspect redis | grep REDIS_VERSION | sed 's/[," ]//g'
+      REDIS_VERSION=6.2.6
+      REDIS_VERSION=6.2.6
+      
+      # wget -P /usr/local/docker/redis https://download.redis.io/releases/redis-6.2.6.tar.gz
+      
+      # tar -xzvf /usr/local/docker/redis/redis-6.2.6.tar.gz -C /usr/local/docker/redis
+      
+      # cp /usr/local/docker/redis/redis-6.2.6/redis.conf /usr/local/docker/redis
+      ```
+   - 最新版 redis.conf:
+      ```bash
+      # wget -P /usr/local/docker/redis http://download.redis.io/redis-stable/redis.conf
+      ```
 
 ## 拉取 redis 镜像
 
@@ -95,30 +110,66 @@ f79b0ef50b9c   redis            bridge    local
 
 ```sh
 #!/bin/sh
+
 for index in $(seq 1 6);
 do
-mkdir -p /usr/local/docker/redis/node-${index}/conf
-touch /usr/local/docker/redis/node-${index}/conf/redis.conf
-cat << EOF >> /usr/local/docker/redis/node-${index}/conf/redis.conf
-port 6379
-bind 0.0.0.0
-cluster-enabled yes
-cluster-node-timeout 5000
-cluster-announce-ip 192.168.0.1${index}
-cluster-announce-port 6379
-cluster-announce-bus-port 16379
-appendonly yes
-EOF
+mkdir -p /usr/local/docker/redis/node-${index}/{conf,data,log}
+
+chmod 777 /usr/local/docker/redis/node-${index}/log
+
+if [ ${index} == 1 ]; then
+    if [ ! -f /usr/local/docker/redis/node-${index}/conf/redis.conf ]; then
+        wget -P /usr/local/docker/redis https://download.redis.io/releases/redis-6.2.6.tar.gz
+        tar -xzvf /usr/local/docker/redis/redis-6.2.6.tar.gz -C /usr/local/docker/redis
+        cp /usr/local/docker/redis/redis-6.2.6/redis.conf /usr/local/docker/redis/node-${index}/conf
+        rm -rf /usr/local/docker/redis/redis-6.2.6*
+    fi
+else
+    if [ ! -f /usr/local/docker/redis/node-${index}/conf/redis.conf ]; then
+        cp /usr/local/docker/redis/node-1/conf/redis.conf /usr/local/docker/redis/node-${index}/conf
+    fi
+fi
 done
 ```
 
 ```bash
 # chmod +x /usr/local/docker/redis/create-node.sh
 
-# /usr/local/docker/redis/create-node.sh
+# /usr/local/docker/redis/create-node.sh >/dev/null 2>&1
 
-# ls /usr/local/docker/redis
-create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
+# tree /usr/local/docker/redis
+/usr/local/docker/redis
+├── create-node.sh
+├── node-1
+│   ├── conf
+│   │   └── redis.conf
+│   ├── data
+│   └── log
+├── node-2
+│   ├── conf
+│   │   └── redis.conf
+│   ├── data
+│   └── log
+├── node-3
+│   ├── conf
+│   │   └── redis.conf
+│   ├── data
+│   └── log
+├── node-4
+│   ├── conf
+│   │   └── redis.conf
+│   ├── data
+│   └── log
+├── node-5
+│   ├── conf
+│   │   └── redis.conf
+│   ├── data
+│   └── log
+└── node-6
+    ├── conf
+    │   └── redis.conf
+    ├── data
+    └── log
 ```
 
 ## 配置 docker-compose.yml
@@ -131,6 +182,7 @@ create-node.sh  node-1  node-2  node-3  node-4  node-5  node-6
 
 ```sh
 #!/bin/sh
+
 > /usr/local/docker/redis/docker-compose.yml
 touch /usr/local/docker/redis/docker-compose.yml
 cat << EOF >> /usr/local/docker/redis/docker-compose.yml
@@ -145,13 +197,14 @@ cat << EOF >> /usr/local/docker/redis/docker-compose.yml
   image: redis:latest
   container_name: redis-${index}
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-${index}/data:/data
-   - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-${index}/data:/data
+    - /usr/local/docker/redis/node-${index}/log:/var/log/redis
   ports:
-   - 637${index}:6379
-   - 1637${index}:16379
+    - 637${index}:6379
+    - 1637${index}:16379
   networks:
     redis:
       ipv4_address: 192.168.0.1${index}
@@ -169,8 +222,8 @@ EOF
 
 # /usr/local/docker/redis/create-docker-compose.sh
 
-# ls /usr/local/docker/redis
-create-docker-compose.sh  create-node.sh  docker-compose.yml  node-1  node-2  node-3  node-4  node-5  node-6
+# ls /usr/local/docker/redis/docker-*
+/usr/local/docker/redis/docker-compose.yml
 ```
 
 ***注，关于自定义 network 的使用方法:***
@@ -209,13 +262,14 @@ services:
   image: redis:latest
   container_name: redis-1
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-1/data:/data
-   - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-1/data:/data
+    - /usr/local/docker/redis/node-1/log:/var/log/redis
   ports:
-   - 6371:6379
-   - 16371:16379
+    - 6371:6379
+    - 16371:16379
   networks:
     redis:
       ipv4_address: 192.168.0.11
@@ -223,13 +277,14 @@ services:
   image: redis:latest
   container_name: redis-2
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-2/data:/data
-   - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-2/data:/data
+    - /usr/local/docker/redis/node-2/log:/var/log/redis
   ports:
-   - 6372:6379
-   - 16372:16379
+    - 6372:6379
+    - 16372:16379
   networks:
     redis:
       ipv4_address: 192.168.0.12
@@ -237,13 +292,14 @@ services:
   image: redis:latest
   container_name: redis-3
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-3/data:/data
-   - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-3/data:/data
+    - /usr/local/docker/redis/node-3/log:/var/log/redis
   ports:
-   - 6373:6379
-   - 16373:16379
+    - 6373:6379
+    - 16373:16379
   networks:
     redis:
       ipv4_address: 192.168.0.13
@@ -251,13 +307,14 @@ services:
   image: redis:latest
   container_name: redis-4
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-4/data:/data
-   - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-4/data:/data
+    - /usr/local/docker/redis/node-4/log:/var/log/redis
   ports:
-   - 6374:6379
-   - 16374:16379
+    - 6374:6379
+    - 16374:16379
   networks:
     redis:
       ipv4_address: 192.168.0.14
@@ -265,13 +322,14 @@ services:
   image: redis:latest
   container_name: redis-5
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-5/data:/data
-   - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-5/data:/data
+    - /usr/local/docker/redis/node-5/log:/var/log/redis
   ports:
-   - 6375:6379
-   - 16375:16379
+    - 6375:6379
+    - 16375:16379
   networks:
     redis:
       ipv4_address: 192.168.0.15
@@ -279,13 +337,14 @@ services:
   image: redis:latest
   container_name: redis-6
   restart: always
-  command: redis-server /etc/redis/redis.conf
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
-   - /usr/local/docker/redis/node-6/data:/data
-   - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
+    - /usr/local/docker/redis/node-6/data:/data
+    - /usr/local/docker/redis/node-6/log:/var/log/redis
   ports:
-   - 6376:6379
-   - 16376:16379
+    - 6376:6379
+    - 16376:16379
   networks:
     redis:
       ipv4_address: 192.168.0.16
@@ -405,7 +464,7 @@ ba0aef2f5880   redis:latest             "docker-entrypoint.s…"   28 seconds ag
     ```
 2. 进入容器之后，执行创建集群的命令，提示输入的时候，输入 ```yes```:
     ```bash
-    # redis-cli --cluster create 192.168.0.11:6379 192.168.0.12:6379 192.168.0.13:6379 192.168.0.14:6379 192.168.0.15:6379 192.168.0.16:6379 --cluster-replicas 1
+    # redis-cli -a 123456 --cluster create 192.168.0.11:6379 192.168.0.12:6379 192.168.0.13:6379 192.168.0.14:6379 192.168.0.15:6379 192.168.0.16:6379 --cluster-replicas 1
     >>> Performing hash slots allocation on 6 nodes...
     Master[0] -> Slots 0 - 5460
     Master[1] -> Slots 5461 - 10922
@@ -457,7 +516,7 @@ ba0aef2f5880   redis:latest             "docker-entrypoint.s…"   28 seconds ag
     ```
 3. 查看集群:
     ```bash
-    # redis-cli
+    # redis-cli -p 6379 -a 123456 -c
     127.0.0.1:6379> cluster nodes
     628f579b269a2792dff63e6b5e15d91d908268a6 192.168.0.11:6379@16379 myself,master - 0 1652933957000 1 connected 0-5460
     c1baf0206dc80cf58fcf490eb200e5e48afdd5cc 192.168.0.15:6379@16379 slave 628f579b269a2792dff63e6b5e15d91d908268a6 0 1652933959336 1 connected
@@ -468,7 +527,6 @@ ba0aef2f5880   redis:latest             "docker-entrypoint.s…"   28 seconds ag
     ```
 4. 操作示例:
     ```bash
-    # redis-cli -c    
     127.0.0.1:6379> set x 10
     -> Redirected to slot [16287] located at 192.168.0.13:6379
     OK
