@@ -31,12 +31,6 @@ ID                            HOSTNAME            STATUS    AVAILABILITY   MANAG
 0po8w4ww3gwpywxw7mnognizo *   centos-docker-163   Ready     Active         Leader           22.06.0-beta.0
 ```
 
-***如果忘记了上述命令生成的 token，可以运行如下命令来查看：***
-
-```bash
-# docker swarm join-token manager
-```
-
 集群初始化之后会自动创建好专用的驱动类型为 overlay 的 ingress 网络:
 
 ```bash
@@ -47,6 +41,28 @@ aa3bc2069f02   host      host      local
 bfmpfq4xzuzv   ingress   overlay   swarm
 b149c59789ce   none      null      local
 ```
+
+- 添加管理节点到集群:
+
+    ```bash
+    # docker swarm join-token manager
+    To add a manager to this swarm, run the following command:
+
+        docker swarm join --token SWMTKN-1-2ryiu75c3eqrbdt1bi1ov5pvxul4aywzpth2qdt6pzxnvd5vzy-bbi0zro73nqv7d4t7v0serik1 192.168.5.163:2377
+    ```
+
+    在 192.168.5.xxx(非192.168.5.163)上执行 ```docker swarm join --token SWMTKN-1-2ryiu75c3eqrbdt1bi1ov5pvxul4aywzpth2qdt6pzxnvd5vzy-bbi0zro73nqv7d4t7v0serik1 192.168.5.163:2377``` ，就可以将 192.168.5.xxx 作为管理节点添加到集群
+
+- 添加工作节点到集群:
+
+    ```bash
+    # docker swarm join-token worker
+    To add a worker to this swarm, run the following command:
+
+        docker swarm join --token SWMTKN-1-2ryiu75c3eqrbdt1bi1ov5pvxul4aywzpth2qdt6pzxnvd5vzy-aodjy6y3amx1zqql8peyxkzph 192.168.5.163:2377
+    ```
+
+    在 192.168.5.xxx(非192.168.5.163)上执行 ```docker swarm join --token SWMTKN-1-2ryiu75c3eqrbdt1bi1ov5pvxul4aywzpth2qdt6pzxnvd5vzy-aodjy6y3amx1zqql8peyxkzph 192.168.5.163:2377``` ，就可以将 192.168.5.xxx 作为工作节点添加到集群
 
 ## 添加工作节点到 swarm 集群
 
