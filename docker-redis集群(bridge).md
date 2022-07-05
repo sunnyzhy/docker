@@ -197,7 +197,7 @@ cat << EOF >> /usr/local/docker/redis/docker-compose.yml
   image: redis:latest
   container_name: redis-${index}
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.1${index} --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-${index}/data:/data
@@ -262,7 +262,7 @@ services:
   image: redis:latest
   container_name: redis-1
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.11 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-1/data:/data
@@ -277,7 +277,7 @@ services:
   image: redis:latest
   container_name: redis-2
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.12 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-2/data:/data
@@ -292,7 +292,7 @@ services:
   image: redis:latest
   container_name: redis-3
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.13 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-3/data:/data
@@ -307,7 +307,7 @@ services:
   image: redis:latest
   container_name: redis-4
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.14 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-4/data:/data
@@ -322,7 +322,7 @@ services:
   image: redis:latest
   container_name: redis-5
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.15 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-5/data:/data
@@ -337,7 +337,7 @@ services:
   image: redis:latest
   container_name: redis-6
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --cluster-announce-ip 192.168.0.16 --cluster-announce-bus-port 16379 --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-6/data:/data
