@@ -199,7 +199,7 @@ services:
   image: redis:latest
   container_name: redis-1
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-1/data:/data
@@ -209,7 +209,7 @@ services:
   image: redis:latest
   container_name: redis-2
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-2/data:/data
@@ -231,7 +231,7 @@ services:
   image: redis:latest
   container_name: redis-3
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-3/data:/data
@@ -241,7 +241,7 @@ services:
   image: redis:latest
   container_name: redis-4
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-4/data:/data
@@ -263,7 +263,7 @@ services:
   image: redis:latest
   container_name: redis-5
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6379 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-5/data:/data
@@ -273,7 +273,7 @@ services:
   image: redis:latest
   container_name: redis-6
   restart: always
-  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass saftop9854 --masterauth saftop9854 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
+  command: redis-server /etc/redis/redis.conf --port 6380 --requirepass 123456 --masterauth 123456 --bind 0.0.0.0 --cluster-enabled yes --appendonly yes --logfile /var/log/redis/redis.log
   volumes:
     - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-6/data:/data
@@ -333,7 +333,7 @@ ed511e72ba6b   redis:latest   "docker-entrypoint.s…"   15 seconds ago   Up 15 
     ```
 2. 进入容器之后，执行创建集群的命令，提示输入的时候，输入 ```yes```:
     ```bash
-    # redis-cli -a saftop9854 --cluster create 192.168.5.163:6379 192.168.5.163:6380 192.168.5.164:6379 192.168.5.164:6380 192.168.5.165:6379 192.168.5.165:6380 --cluster-replicas 1
+    # redis-cli -a 123456 --cluster create 192.168.5.163:6379 192.168.5.163:6380 192.168.5.164:6379 192.168.5.164:6380 192.168.5.165:6379 192.168.5.165:6380 --cluster-replicas 1
     Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
     >>> Performing hash slots allocation on 6 nodes...
     Master[0] -> Slots 0 - 5460
@@ -386,7 +386,7 @@ ed511e72ba6b   redis:latest   "docker-entrypoint.s…"   15 seconds ago   Up 15 
     ```
 3. 查看集群:
     ```bash
-    # redis-cli -p 6379 -a saftop9854 -c
+    # redis-cli -p 6379 -a 123456 -c
     127.0.0.1:6379> cluster nodes
     5cb08f28f5a10dea69d8fb9fc50c6a67f64d8a39 192.168.5.165:6379@16379 master - 0 1656929782000 5 connected 10923-16383
     03039dc513c46055fbb9ace9898a679b41e538fb 192.168.5.163:6379@16379 myself,master - 0 1656929781000 1 connected 0-5460
