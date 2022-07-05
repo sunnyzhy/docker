@@ -83,3 +83,30 @@ docker 容器的网络有五种模式：
    与 host 模式类似，只是容器将与指定的容器共享网络命名空间。这个模式就是指定一个已有的容器，共享该容器的 IP 和端口。除了网络方面两个容器共享，其他的如文件系统，进程等还是隔离开的。
 
 - 自定义网络: 使用 ```docker network create <network-name>``` 命令创建
+
+## 删除 docker 虚拟网卡
+
+docker 虚拟网卡以 ```br-``` 开头，如:
+
+```bash
+# ifconfig
+br-601873486f2c: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.7.1  netmask 255.255.255.0  broadcast 192.168.7.255
+        ether 02:42:5c:73:cc:82  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+删除 docker 虚拟网卡:
+
+1. 停止虚拟网卡
+```bash
+# ifconfig br-601873486f2c down
+```
+
+2. 删除虚拟网卡
+```bash
+# brctl delbr br-601873486f2c
+```
