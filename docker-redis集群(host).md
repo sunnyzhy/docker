@@ -13,7 +13,7 @@
     |192.168.5.164|centos-docker-164|worker|
     |192.168.5.165|centos-docker-165|worker|
 
-- 启动六个 redis
+- 启动六个 redis 容器
     |容器名称|宿主机IP|宿主机的端口|挂载宿主机的配置文件和数据文件|
     |--|--|--|--|
     |redis_1|192.168.5.163|6379|/usr/local/docker/redis/node-1/conf:/etc/redis<br />/usr/local/docker/redis/node-1/data\:/data<br />/usr/local/docker/redis/node-1/log:/var/log/redis|
