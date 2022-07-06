@@ -109,3 +109,17 @@ Error: No such image: feb5d9fea6a5
 
 # systemctl start docker
 ```
+
+### docker ps 显示信息不全
+
+```docker ps``` 显示的信息会被截断:
+
+```bash
+# docker ps
+```
+
+解决方法，添加参数 ```--no-trunc``` (不截断):
+
+```bash
+# docker ps --no-trunc
+```
