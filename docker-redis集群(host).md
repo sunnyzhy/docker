@@ -16,12 +16,12 @@
 - 启动六个 redis
     |容器名称|宿主机IP|宿主机的端口|挂载宿主机的配置文件和数据文件|
     |--|--|--|--|
-    |redis-1|192.168.5.163|6379|/usr/local/docker/redis/node-1/conf:/etc/redis<br />/usr/local/docker/redis/node-1/data\:/data<br />/usr/local/docker/redis/node-1/log:/var/log/redis|
-    |redis-2|192.168.5.163|6380|/usr/local/docker/redis/node-2/conf:/etc/redis<br />/usr/local/docker/redis/node-2/data\:/data<br />/usr/local/docker/redis/node-2/log:/var/log/redis|
-    |redis-3|192.168.5.164|6379|/usr/local/docker/redis/node-3/conf:/etc/redis<br />/usr/local/docker/redis/node-3/data\:/data<br />/usr/local/docker/redis/node-3/log:/var/log/redis|
-    |redis-4|192.168.5.164|6380|/usr/local/docker/redis/node-4/conf:/etc/redis<br />/usr/local/docker/redis/node-4/data\:/data<br />/usr/local/docker/redis/node-4/log:/var/log/redis|
-    |redis-5|192.168.5.165|6379|/usr/local/docker/redis/node-5/conf:/etc/redis<br />/usr/local/docker/redis/node-5/data\:/data<br />/usr/local/docker/redis/node-5/log:/var/log/redis|
-    |redis-6|192.168.5.165|6380|/usr/local/docker/redis/node-6/conf:/etc/redis<br />/usr/local/docker/redis/node-6/data\:/data<br />/usr/local/docker/redis/node-6/log:/var/log/redis|
+    |redis_1|192.168.5.163|6379|/usr/local/docker/redis/node-1/conf:/etc/redis<br />/usr/local/docker/redis/node-1/data\:/data<br />/usr/local/docker/redis/node-1/log:/var/log/redis|
+    |redis_2|192.168.5.163|6380|/usr/local/docker/redis/node-2/conf:/etc/redis<br />/usr/local/docker/redis/node-2/data\:/data<br />/usr/local/docker/redis/node-2/log:/var/log/redis|
+    |redis_3|192.168.5.164|6379|/usr/local/docker/redis/node-3/conf:/etc/redis<br />/usr/local/docker/redis/node-3/data\:/data<br />/usr/local/docker/redis/node-3/log:/var/log/redis|
+    |redis_4|192.168.5.164|6380|/usr/local/docker/redis/node-4/conf:/etc/redis<br />/usr/local/docker/redis/node-4/data\:/data<br />/usr/local/docker/redis/node-4/log:/var/log/redis|
+    |redis_5|192.168.5.165|6379|/usr/local/docker/redis/node-5/conf:/etc/redis<br />/usr/local/docker/redis/node-5/data\:/data<br />/usr/local/docker/redis/node-5/log:/var/log/redis|
+    |redis_6|192.168.5.165|6380|/usr/local/docker/redis/node-6/conf:/etc/redis<br />/usr/local/docker/redis/node-6/data\:/data<br />/usr/local/docker/redis/node-6/log:/var/log/redis|
 
 - ```--cluster-replicas 1```: 表示 ```主节点数和从节点数的比例等于 1``` 。在创建集群的时候，将按照 ```IP:PORT``` 的顺序，先生成 3 个主节点，再生成 3 个从节点。
 
