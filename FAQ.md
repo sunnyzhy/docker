@@ -123,3 +123,15 @@ Error: No such image: feb5d9fea6a5
 ```bash
 # docker ps --no-trunc
 ```
+
+### Failed to Setup IP tables: Unable to enable SKIP DNAT rule
+
+原因:
+
+关闭防火墙之后 docker 需要重启。
+
+解决方法:
+
+```bash
+# systemctl restart docker
+```
