@@ -2,6 +2,8 @@
 
 ## wait-for-it
 
+[wait-for-it 官网](https://github.com/vishnubob/wait-for-it 'wait-for-it 官网')
+
 ### Usage
 
 ```
@@ -50,6 +52,8 @@ wait-for-it.sh: timeout occurred after waiting 15 seconds for www.google.com:81
 ```
 
 ## wait-for
+
+[wait-for 官网](https://github.com/Eficode/wait-for 'wait-for 官网')
 
 ### Usage
 
