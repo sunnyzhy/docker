@@ -74,3 +74,5 @@ Eficode site is up
 # ./wait-for https://www.eficode.com -- echo "Eficode is accessible over HTTPS"
 Eficode is accessible over HTTPS
 ```
+
+***注: 在 docker 容器里使用 ```wait-for```，需要安装 ```nc```，默认位置在 ```/usr/bin/nc```；否则会报错 ```nc command is missing```。***
