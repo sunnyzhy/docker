@@ -202,6 +202,8 @@ cat << EOF >> /usr/local/docker/redis/docker-compose.yml
     - /usr/local/docker/redis/node-${index}/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-${index}/data:/data
     - /usr/local/docker/redis/node-${index}/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 637${index}:6379
     - 1637${index}:16379
@@ -267,6 +269,8 @@ services:
     - /usr/local/docker/redis/node-1/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-1/data:/data
     - /usr/local/docker/redis/node-1/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6371:6379
     - 16371:16379
@@ -282,6 +286,8 @@ services:
     - /usr/local/docker/redis/node-2/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-2/data:/data
     - /usr/local/docker/redis/node-2/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6372:6379
     - 16372:16379
@@ -297,6 +303,8 @@ services:
     - /usr/local/docker/redis/node-3/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-3/data:/data
     - /usr/local/docker/redis/node-3/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6373:6379
     - 16373:16379
@@ -312,6 +320,8 @@ services:
     - /usr/local/docker/redis/node-4/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-4/data:/data
     - /usr/local/docker/redis/node-4/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6374:6379
     - 16374:16379
@@ -327,6 +337,8 @@ services:
     - /usr/local/docker/redis/node-5/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-5/data:/data
     - /usr/local/docker/redis/node-5/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6375:6379
     - 16375:16379
@@ -342,6 +354,8 @@ services:
     - /usr/local/docker/redis/node-6/conf/redis.conf:/etc/redis/redis.conf
     - /usr/local/docker/redis/node-6/data:/data
     - /usr/local/docker/redis/node-6/log:/var/log/redis
+    - /etc/timezone/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
   ports:
     - 6376:6379
     - 16376:16379
