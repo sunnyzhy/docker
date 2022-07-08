@@ -289,7 +289,7 @@ Creating service iot_redis_2
 Creating service iot_redis_3
 Creating service iot_redis_4
 
-# docker stack ps iot
+# docker stack ps iot | grep redis
 ID             NAME            IMAGE          NODE                DESIRED STATE   CURRENT STATE                ERROR     PORTS
 49iswjsmal4v   iot_redis_1.1   redis:latest   centos-docker-163   Running         Running about a minute ago             
 qm6d7djo94ge   iot_redis_2.1   redis:latest   centos-docker-163   Running         Running about a minute ago             
@@ -298,7 +298,7 @@ irutlz6qry2c   iot_redis_4.1   redis:latest   centos-docker-164   Running       
 v70q1slp1a65   iot_redis_5.1   redis:latest   centos-docker-165   Running         Running 2 minutes ago                  
 o9dhfx01cr9o   iot_redis_6.1   redis:latest   centos-docker-165   Running         Running about a minute ago          
 
-# docker service ls
+# docker service ls | grep redis
 ID             NAME          MODE         REPLICAS   IMAGE          PORTS
 zmb899ywanem   iot_redis_1   replicated   1/1        redis:latest   *:6379->6379/tcp, *:16379->16379/tcp
 l630h7vv74lm   iot_redis_2   replicated   1/1        redis:latest   *:6380->6380/tcp, *:16380->16380/tcp
@@ -313,7 +313,7 @@ f6ao1snregto   iot_redis_6   replicated   1/1        redis:latest   *:6384->6384
 查看宿主机 192.168.5.163 的 redis 容器:
 
 ```bash
-# docker ps
+# docker ps | grep redis
 CONTAINER ID   IMAGE          COMMAND                   CREATED         STATUS         PORTS      NAMES
 1ab0dfe74274   redis:latest   "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes   6379/tcp   iot_redis_2.1.qm6d7djo94geyrnmqmdhchkd3
 7059d2279592   redis:latest   "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes   6379/tcp   iot_redis_1.1.49iswjsmal4vpemyyv08ri8ur
@@ -322,7 +322,7 @@ CONTAINER ID   IMAGE          COMMAND                   CREATED         STATUS  
 查看宿主机 192.168.5.164 的 redis 容器:
 
 ```bash
-# docker ps
+# docker ps | grep redis
 CONTAINER ID   IMAGE          COMMAND                   CREATED         STATUS         PORTS      NAMES
 5a8c795a58f8   redis:latest   "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes   6379/tcp   iot_redis_3.1.kaodrj49hs0uigmn4xareyydc
 4cb87379b82c   redis:latest   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   6379/tcp   iot_redis_4.1.irutlz6qry2ca1a0ezp4izi3u
@@ -331,7 +331,7 @@ CONTAINER ID   IMAGE          COMMAND                   CREATED         STATUS  
 查看宿主机 192.168.5.165 的 redis 容器:
 
 ```bash
-# docker ps
+# docker ps | grep redis
 CONTAINER ID   IMAGE          COMMAND                   CREATED         STATUS         PORTS      NAMES
 5da96d1c5b5f   redis:latest   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   6379/tcp   iot_redis_6.1.o9dhfx01cr9o7tc2scn0b4rfz
 42dffbbb458b   redis:latest   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   6379/tcp   iot_redis_5.1.v70q1slp1a65rxpbpsz1mgn5n
