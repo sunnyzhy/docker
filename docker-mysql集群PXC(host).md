@@ -16,18 +16,18 @@
 - PXC 版本: ```percona/percona-xtradb-cluster:5.7```
 
 - PXC 集群
-    |容器名称|宿主机IP|宿主机的端口|数据卷(挂载宿主机的数据目录)|
+    |容器名称|宿主机IP|端口映射(宿主机端口:容器端口)|数据卷(挂载宿主机的数据目录)|
     |--|--|--|--|
-    |pxc_1|192.168.5.163|3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
-    |pxc_2|192.168.5.164|3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
-    |pxc_3|192.168.5.165|3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
+    |pxc_1|192.168.5.163|3306:3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
+    |pxc_2|192.168.5.164|3307:3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
+    |pxc_3|192.168.5.165|3308:3306|pxc(/var/lib/docker/volumes/pxc/\_data)|
 
 - Haproxy
-    |容器名称|宿主机IP|宿主机的端口:容器的端口|挂载(宿主机的配置文件:容器的配置文件)|
+    |容器名称|宿主机IP|端口映射(宿主机端口:容器端口)|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|
-    |haproxy_1|192.168.5.163|3306:3306<br />28081:18081|/usr/local/docker/haproxy/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
-    |haproxy_2|192.168.5.164|3307:3306<br />28082:18081|/usr/local/docker/haproxy/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
-    |haproxy_3|192.168.5.165|3308:3306<br />28083:18081|/usr/local/docker/haproxy/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_1|192.168.5.163|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_2|192.168.5.164|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_3|192.168.5.165|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-3/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
 
     注:
        1. 网络驱动类型必须是 host
@@ -35,9 +35,9 @@
 - Keepalived
     |容器名称|宿主机IP|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|
-    |keepalived_1|192.168.5.163|/usr/local/docker/keepalived/master/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
-    |keepalived_2|192.168.5.164|/usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
-    |keepalived_3|192.168.5.165|/usr/local/docker/keepalived/backup/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf|
+    |keepalived_1|192.168.5.163|/usr/local/docker/keepalived/node-1/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf<br />/usr/local/docker/keepalived/node-1/check-haproxy.sh:/usr/bin/check-haproxy.sh|
+    |keepalived_2|192.168.5.164|/usr/local/docker/keepalived/node-2/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf<br />/usr/local/docker/keepalived/node-2/check-haproxy.sh:/usr/bin/check-haproxy.sh|
+    |keepalived_3|192.168.5.165|/usr/local/docker/keepalived/node-3/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf<br />/usr/local/docker/keepalived/node-3/check-haproxy.sh:/usr/bin/check-haproxy.sh|
     
     注:
        1. 网络驱动类型必须是 host
