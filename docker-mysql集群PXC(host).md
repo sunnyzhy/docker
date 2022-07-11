@@ -50,7 +50,7 @@
 ```bash
 # docker pull percona/percona-xtradb-cluster:5.7
 
-# docker images
+# docker images | grep percona
 REPOSITORY                       TAG       IMAGE ID       CREATED         SIZE
 percona/percona-xtradb-cluster   5.7       e37bc006844e   6 months ago    287MB
 ```
@@ -359,7 +359,7 @@ a2b25dda8a88   percona/percona-xtradb-cluster:5.7   "/entrypoint.sh sh -…"   1
 ```bash
 # docker pull haproxy:latest
 
-# docker images
+# docker images | grep haproxy
 REPOSITORY                       TAG       IMAGE ID       CREATED         SIZE
 haproxy                          latest    575a5788d81a   5 months ago    101MB
 ```
@@ -560,7 +560,7 @@ cebf5f242df9   haproxy:latest                       "docker-entrypoint.s…"   1
 ```bash
 # docker pull osixia/keepalived
 
-# docker images
+# docker images | grep keepalived
 REPOSITORY                       TAG       IMAGE ID       CREATED         SIZE
 osixia/keepalived                latest    d04966a100a7   2 years ago     72.9MB
 ```
