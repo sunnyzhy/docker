@@ -48,7 +48,7 @@
 ```bash
 # docker pull redis:latest
 
-# docker images
+# docker images | grep redis
 REPOSITORY                                      TAG       IMAGE ID       CREATED        SIZE
 redis                                           latest    7614ae9453d1   4 months ago   113MB
 ```
