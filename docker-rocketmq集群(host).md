@@ -115,6 +115,15 @@ if [ ! -d /usr/local/docker/rocketmq/namesrv-1/logs ]; then
     docker network rm rocketmq
 fi
 
+if [ ! -f /usr/local/docker/rocketmq/broker-a/wait-for-it.sh ]; then
+    wget -P /usr/local/docker/rocketmq/broker-a https://gitee.com/sunny906/docker/raw/master/wait-for/wait-for-it.sh
+	chmod +x /usr/local/docker/rocketmq/broker-a/wait-for-it.sh
+fi
+cp /usr/local/docker/rocketmq/broker-a/wait-for-it.sh /usr/local/docker/rocketmq/broker-a-s
+cp /usr/local/docker/rocketmq/broker-a/wait-for-it.sh /usr/local/docker/rocketmq/broker-b
+cp /usr/local/docker/rocketmq/broker-a/wait-for-it.sh /usr/local/docker/rocketmq/broker-b-s
+cp /usr/local/docker/rocketmq/broker-a/wait-for-it.sh /usr/local/docker/rocketmq/dashboard
+
 ##--------------------------------------------------------------------
 ## 修改集群配置文件
 ##--------------------------------------------------------------------
@@ -152,13 +161,6 @@ cp -r /usr/local/docker/rocketmq/broker-a/logs /usr/local/docker/rocketmq/broker
 cp -r /usr/local/docker/rocketmq/broker-a/store /usr/local/docker/rocketmq/broker-b-s
 
 chown -R 3000:3000 /usr/local/docker/rocketmq
-chmod +x /usr/local/docker/wait-for-it.sh
-
-cp /usr/local/docker/wait-for-it.sh /usr/local/docker/rocketmq/broker-a
-cp /usr/local/docker/wait-for-it.sh /usr/local/docker/rocketmq/broker-a-s
-cp /usr/local/docker/wait-for-it.sh /usr/local/docker/rocketmq/broker-b
-cp /usr/local/docker/wait-for-it.sh /usr/local/docker/rocketmq/broker-b-s
-cp /usr/local/docker/wait-for-it.sh /usr/local/docker/rocketmq/dashboard
 
 ##--------------------------------------------------------------------
 ## 修改 dashboard 配置文件
