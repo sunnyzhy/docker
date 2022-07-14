@@ -431,8 +431,8 @@ listen  proxy-mysql
 	#mysql-1: 自定义服务名  172.19.0.2:3306: 容器ip:端口   check: 发送心跳监测  weight 1: 权重采用权重算法才会生效  maxconn 2000: 最大连接数	 
         option  mysql-check user haproxy
         server  mysql-1 192.168.5.163:3306 check weight 1 maxconn 2000
-        server  mysql-2 192.168.5.164:3306 check weight 1 maxconn 2000
-        server  mysql-3 192.168.5.165:3306 check weight 1 maxconn 2000
+        server  mysql-2 192.168.5.164:3307 check weight 1 maxconn 2000
+        server  mysql-3 192.168.5.165:3308 check weight 1 maxconn 2000
         #使用keepalive检测死链
         option  tcpka
 EOF
@@ -453,9 +453,6 @@ services:
      - /usr/local/docker/haproxy/node-$index/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
      - /etc/timezone:/etc/timezone
      - /etc/localtime:/etc/localtime
-   ports:
-     - 13306:13306
-     - 18081:18081
    network_mode: host
 EOF
 done
