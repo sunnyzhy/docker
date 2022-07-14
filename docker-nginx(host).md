@@ -213,6 +213,8 @@ networks:
     external: true
 ```
 
+### 启动 docker-compose
+
 在宿主机 192.168.5.163(manager) 上启动 nginx 服务:
 
 ```bash
@@ -226,7 +228,7 @@ zwffbnblsyuc   iot_nginx.1              nginx:latest                            
 54hbyb2hs9y4   iot_nginx             replicated   1/1        nginx:latest                                           *:80->80/tcp
 ```
 
-## 查看 nginx 容器
+### 查看 nginx 容器
 
 查看宿主机 192.168.5.163 的 nginx 容器:
 
