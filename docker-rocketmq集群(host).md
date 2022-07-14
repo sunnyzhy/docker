@@ -18,10 +18,10 @@
     |--|--|--|--|
     |mqnamesrv_1|192.168.5.163|9876:9876|/usr/local/docker/rocketmq/namesrv-1/logs:/home/rocketmq/logs|
     |mqnamesrv_2|192.168.5.164|9877:9876|/usr/local/docker/rocketmq/namesrv-2/logs:/home/rocketmq/logs|
-    |mqbroker_a|192.168.5.164|10911:10911|/usr/local/docker/rocketmq/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-a/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-a/store:/home/rocketmq/store|
-    |mqbroker_a_s|192.168.5.165|10912:10911|/usr/local/docker/rocketmq/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-a-s/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-a-s/store:/home/rocketmq/store|
-    |mqbroker_b|192.168.5.165|10913:10911|/usr/local/docker/rocketmq/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-b/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-b/store:/home/rocketmq/store|
-    |mqbroker_b_s192.168.5.164|10914:10911|/usr/local/docker/rocketmq/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-b-s/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-b-s/store:/home/rocketmq/store|
+    |mqbroker_a|192.168.5.164|10909:10909|/usr/local/docker/rocketmq/broker-a/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-a/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-a/store:/home/rocketmq/store|
+    |mqbroker_a_s|192.168.5.165|10910:10909|/usr/local/docker/rocketmq/broker-a-s/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-a-s/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-a-s/store:/home/rocketmq/store|
+    |mqbroker_b|192.168.5.165|10911:10909|/usr/local/docker/rocketmq/broker-b/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-b/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-b/store:/home/rocketmq/store|
+    |mqbroker_b_s192.168.5.164|10912:10909|/usr/local/docker/rocketmq/broker-b-s/conf:/home/rocketmq/rocketmq-4.9.2/conf<br />/usr/local/docker/rocketmq/broker-b-s/logs:/home/rocketmq/logs<br />/usr/local/docker/rocketmq/broker-b-s/store:/home/rocketmq/store|
     |mqdashboard|192.168.5.163|8080:8080|/usr/local/docker/rocketmq/dashboard/conf/application.properties:/application.properties<br />/usr/local/docker/rocketmq/dashboard/conf/users.properties:/tmp/rocketmq-console/data/users.properties|
 
 - apache/rocketmq:latest 镜像配置文件 broker-a.properties
