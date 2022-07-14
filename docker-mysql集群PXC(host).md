@@ -454,7 +454,7 @@ services:
      - /etc/timezone:/etc/timezone
      - /etc/localtime:/etc/localtime
    ports:
-     - 13306:3306
+     - 13306:13306
      - 18081:18081
    network_mode: host
 EOF
