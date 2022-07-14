@@ -25,9 +25,9 @@
 - Haproxy
     |容器名称|宿主机IP|端口映射(宿主机端口:容器端口)|挂载(宿主机的配置文件:容器的配置文件)|
     |--|--|--|--|
-    |haproxy_1|192.168.5.163|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
-    |haproxy_2|192.168.5.164|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
-    |haproxy_3|192.168.5.165|13306:3306<br />18081:18081|/usr/local/docker/haproxy/node-3/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_1|192.168.5.163|13306:13306<br />18081:18081|/usr/local/docker/haproxy/node-1/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_2|192.168.5.164|13306:13306<br />18081:18081|/usr/local/docker/haproxy/node-2/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
+    |haproxy_3|192.168.5.165|13306:13306<br />18081:18081|/usr/local/docker/haproxy/node-3/config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg|
 
     注:
        1. 网络驱动类型必须是 host
@@ -40,6 +40,7 @@
     |keepalived_3|192.168.5.165|/usr/local/docker/keepalived/node-3/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf<br />/usr/local/docker/keepalived/node-3/check-haproxy.sh:/usr/bin/check-haproxy.sh|
     
     注:
+
        1. 网络驱动类型必须是 host
        2. 虚拟IP的端口必须与真实IP的端口保持一致，因为 Keepalived 虚拟的只是 IP 而不是端口
 
