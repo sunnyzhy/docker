@@ -39,6 +39,7 @@
     |keepalived_3|192.168.5.165|/usr/local/docker/keepalived/node-3/config/keepalived.conf:/usr/local/etc/keepalived/keepalived.conf<br />/usr/local/docker/keepalived/node-3/check-haproxy.sh:/usr/bin/check-haproxy.sh|
     
     注:
+
        1. 网络驱动类型必须是 host
        2. 虚拟IP的端口必须与真实IP的端口保持一致，因为 Keepalived 虚拟的只是 IP 而不是端口
 
