@@ -1,4 +1,4 @@
-# docker-nginx
+# docker - nginx(bridge)
 
 ## 前言
 
