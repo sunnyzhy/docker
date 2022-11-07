@@ -57,7 +57,9 @@
 ## 删除镜像
 
 ``` bash
-# docker rmi <image name>|<image id>
+# docker rmi <repository>|<image id>
+
+# docker rmi <repository>:<tag>
 ```
 
 ***删除镜像的时候，要先删除容器，再删除镜像。***
