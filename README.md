@@ -8,3 +8,8 @@ Docker Compose 和 Docker Swarm 都是 Docker 官方容器编排项目，但不�
 - Docker Compose 的网络驱动类型为 bridge，用来保证在同一个主机上的容器网络互通; Docker Swarm 的网络驱动类型为 overlay，用来保证在不同主机上的容器网络互通
 - Docker Compose 停止与删除容器的命令为先执行 ```docker stop $container_id```，再执行命令 ```docker rm $container_id```; Docker Swarm 停止与删除容器的命令为 ```docker service rm $service_id```
 
+## 挂载目录
+
+```bash
+docker run -it -v <宿主机目录>:<容器目录> <IMAGE>:<TAG>
+```
